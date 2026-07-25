@@ -18,7 +18,6 @@ function level(ratio: number): number {
   return 4;
 }
 
-/** A compact strip of the last N days of adherence for one medication. */
 export function HistoryStrip({
   history,
   todayKey,

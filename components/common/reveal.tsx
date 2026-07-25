@@ -10,7 +10,6 @@ interface RevealProps {
   className?: string;
 }
 
-/** Subtle staggered fade/slide-in used to animate lists and grids on mount. */
 export function Reveal({ children, delay = 0, className }: RevealProps) {
   return (
     <motion.div

@@ -1,35 +1,17 @@
-/**
- * Static app configuration: the medications that are seeded on first run,
- * the timeline slots, and the reminder window size.
- */
-
 export const APP_NAME = "Hair Health Tracker";
 export const APP_DESCRIPTION =
   "Track your hair-care medications, log daily completion, and monitor daily wellness.";
 
-/**
- * Reserved `medicationName` / `scheduledTime` used for the single per-day
- * wellness row stored in the `dailylogs` collection. The unique
- * (date, medicationName, scheduledTime) index therefore allows exactly one
- * wellness entry per day, and medication queries exclude this key so the
- * wellness row never counts as a dose.
- */
 export const WELLNESS_LOG_KEY = "__wellness__";
 
-/** Seed definition for a medication. */
 export interface SeedMedication {
   name: string;
   description: string;
   instructions: string;
   scheduleTimes: string[];
-  /** Recurrence in days (1 = daily, 2 = every other day). Defaults to 1. */
   intervalDays?: number;
 }
 
-/**
- * Medications preloaded into an empty database. `scheduleTimes` are IST labels
- * and are the single source of truth for the reminder engine and timeline.
- */
 export const SEED_MEDICATIONS: SeedMedication[] = [
   {
     name: "Biotin Hair Gummies",
@@ -69,12 +51,6 @@ export const SEED_MEDICATIONS: SeedMedication[] = [
   },
 ];
 
-/**
- * Timeline slots for the Today page. Derived from the union of all seed
- * schedule times but declared explicitly so the timeline is stable even if a
- * medication is disabled.
- */
 export const TIMELINE_SLOTS = ["8:00 AM", "10:00 AM", "2:00 PM", "9:00 PM"] as const;
 
-/** Number of past days to render in the calendar heatmap. */
-export const HEATMAP_DAYS = 133; // ~19 weeks, fills a 7-row grid nicely
+export const HEATMAP_DAYS = 133;

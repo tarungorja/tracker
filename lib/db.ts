@@ -1,15 +1,7 @@
 import mongoose, { type Mongoose } from "mongoose";
 
-import { env } from "@/lib/env";
-
-/**
- * Reusable MongoDB connection.
- *
- * In a serverless environment (Vercel) every invocation may run in a fresh
- * module context, but warm lambdas reuse the same global. We cache the
- * connection promise on `globalThis` so concurrent requests share a single
- * pooled connection instead of opening a new one per request.
- */
+const MONGODB_URI =
+  "mongodb://tarungorja:Gtarun%402002@ac-orrve8h-shard-00-00.d56wetf.mongodb.net:27017,ac-orrve8h-shard-00-01.d56wetf.mongodb.net:27017,ac-orrve8h-shard-00-02.d56wetf.mongodb.net:27017/?ssl=true&replicaSet=atlas-qhuq77-shard-0&authSource=admin&retryWrites=true&w=majority";
 
 interface MongooseCache {
   conn: Mongoose | null;
@@ -28,10 +20,8 @@ export async function connectToDatabase(): Promise<Mongoose> {
 
   if (!cache.promise) {
     mongoose.set("strictQuery", true);
-    cache.promise = mongoose.connect(env.MONGODB_URI, {
+    cache.promise = mongoose.connect(MONGODB_URI, {
       bufferCommands: false,
-      // Keep the pool small — Vercel functions are short-lived and Atlas free
-      // tier caps concurrent connections.
       maxPoolSize: 5,
       serverSelectionTimeoutMS: 10_000,
     });
@@ -40,7 +30,6 @@ export async function connectToDatabase(): Promise<Mongoose> {
   try {
     cache.conn = await cache.promise;
   } catch (error) {
-    // Reset so the next request can retry instead of reusing a rejected promise.
     cache.promise = null;
     throw error;
   }

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface ProgressRingProps {
-  value: number; // 0-100
+  value: number;
   size?: number;
   stroke?: number;
   className?: string;
@@ -14,9 +14,6 @@ interface ProgressRingProps {
   children?: React.ReactNode;
 }
 
-/**
- * Apple-Health style activity ring. Animates from empty to `value` on mount.
- */
 export function ProgressRing({
   value,
   size = 176,

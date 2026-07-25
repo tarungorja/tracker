@@ -12,15 +12,13 @@ import { WELLNESS_LOG_KEY } from "@/lib/constants";
 import type { DoseStatus, DoseView, MedicationView } from "@/models";
 import { DailyLog, Medication } from "@/models";
 
-/** Per-day adherence figures. */
 export interface DayCompletion {
   date: string;
   total: number;
   completed: number;
-  ratio: number; // 0-1
+  ratio: number;
 }
 
-/** Fetch enabled medications as plain serialisable views. */
 export async function getMedicationViews(onlyEnabled = false): Promise<MedicationView[]> {
   await connectToDatabase();
   await ensureSeeded();
@@ -43,11 +41,6 @@ export async function getMedicationViews(onlyEnabled = false): Promise<Medicatio
   });
 }
 
-/**
- * Whether a medication is scheduled on a given IST day, honouring its recurrence
- * interval. Daily meds (interval 1) are due every day; an every-N-days med is
- * due on days that are a whole multiple of N from its start (created) day.
- */
 export function isMedicationDueOn(
   med: Pick<MedicationView, "intervalDays" | "startDateKey">,
   dateKey: string,
@@ -58,11 +51,6 @@ export function isMedicationDueOn(
   return daysBetweenKeys(med.startDateKey, dateKey) % interval === 0;
 }
 
-/**
- * Compute every dose scheduled for a given day, merged with its completion
- * state from DailyLog. The medication schedule is the source of truth, so the
- * full set of doses is always known even before any log rows exist.
- */
 export async function getDosesForDay(dateKey: string): Promise<DoseView[]> {
   await connectToDatabase();
   const meds = await getMedicationViews(true);
@@ -98,7 +86,6 @@ export async function getDosesForDay(dateKey: string): Promise<DoseView[]> {
   return doses.sort((a, b) => a.scheduledMinutes - b.scheduledMinutes);
 }
 
-/** Derive a UI status for a dose relative to "now" (only meaningful for today). */
 export function doseStatus(
   dose: Pick<DoseView, "completed" | "scheduledMinutes">,
   nowMinutes: number,
@@ -109,10 +96,6 @@ export function doseStatus(
   return dose.scheduledMinutes > nowMinutes ? "upcoming" : "missed";
 }
 
-/**
- * Aggregate DailyLog rows across a date range into per-day adherence.
- * Days with no rows are returned with total 0.
- */
 export async function getCompletionMap(
   startKey: string,
   endKey: string,
@@ -155,7 +138,6 @@ export async function getCompletionMap(
   return map;
 }
 
-/** Longest run of consecutive success days in an ascending key list. */
 export function longestStreak(
   orderedKeys: string[],
   isSuccess: (key: string) => boolean,
@@ -173,11 +155,6 @@ export function longestStreak(
   return best;
 }
 
-/**
- * Consecutive success days ending at `todayKey`. When `graceToday` is true and
- * today is not yet a success, today is treated as "in progress" (skipped, not
- * counted as a break) so an unfinished day doesn't zero the streak.
- */
 export function currentStreak(
   todayKey: string,
   isSuccess: (key: string) => boolean,
@@ -198,7 +175,6 @@ export function currentStreak(
   return streak;
 }
 
-/** Convenience: current IST context shared by data helpers. */
 export function nowContext(now: Date = new Date()) {
   return {
     now,

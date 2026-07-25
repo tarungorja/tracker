@@ -3,9 +3,7 @@ import { cn } from "@/lib/utils";
 
 export interface HeatmapDay {
   date: string;
-  /** Normalised intensity 0-1. */
   value: number;
-  /** Optional tooltip detail, e.g. "3 / 4 done". */
   detail?: string;
 }
 
@@ -49,15 +47,9 @@ interface HeatmapProps {
   className?: string;
 }
 
-/**
- * GitHub-style contribution grid. `days` must be a contiguous ascending range.
- * Columns are weeks (Sun→Sat); the first column is padded to the correct
- * weekday so months line up visually.
- */
 export function Heatmap({ days, palette = "green", className }: HeatmapProps) {
   const colors = PALETTES[palette];
 
-  // Build week columns.
   const weeks: (HeatmapDay | null)[][] = [];
   let current: (HeatmapDay | null)[] = [];
 

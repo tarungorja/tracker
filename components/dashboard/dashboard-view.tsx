@@ -33,7 +33,6 @@ export function DashboardView({ data }: { data: DashboardData }) {
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      {/* Top grid: progress ring + key stats */}
       <div className="grid gap-4 sm:gap-5 lg:grid-cols-3">
         <Reveal className="lg:col-span-2">
           <Card className="h-full">
@@ -89,7 +88,6 @@ export function DashboardView({ data }: { data: DashboardData }) {
         </Reveal>
       </div>
 
-      {/* Today's reminders + medication list */}
       <div className="grid gap-4 sm:gap-5 lg:grid-cols-3">
         <Reveal delay={0.1} className="lg:col-span-2">
           <Card className="h-full">
@@ -162,7 +160,6 @@ export function DashboardView({ data }: { data: DashboardData }) {
         </Reveal>
       </div>
 
-      {/* Calendar heatmap */}
       <Reveal delay={0.2}>
         <Card>
           <CardHeader>

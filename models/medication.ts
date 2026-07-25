@@ -1,9 +1,5 @@
 import { Schema, model, models, type InferSchemaType, type Model } from "mongoose";
 
-/**
- * Medication
- * A hair-care medication with one or more IST schedule times.
- */
 const medicationSchema = new Schema(
   {
     name: { type: String, required: true, unique: true, trim: true },
@@ -17,8 +13,6 @@ const medicationSchema = new Schema(
         message: "A medication needs at least one schedule time.",
       },
     },
-    // How often the medication recurs, in days. 1 = every day (default),
-    // 2 = every other day, etc. The recurrence is anchored to `createdAt`.
     intervalDays: { type: Number, default: 1, min: 1 },
     enabled: { type: Boolean, default: true },
   },

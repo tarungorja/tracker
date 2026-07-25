@@ -1,9 +1,5 @@
 import { cn } from "@/lib/utils";
 
-/**
- * Render the free-text instruction string into readable, structured markup.
- * Recognises ALL-CAPS section headings and "•" bullet lines.
- */
 export function Instructions({
   text,
   className,

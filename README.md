@@ -69,7 +69,6 @@ lib/
   seed.ts                Auto-seed medications if empty
 models/                  Mongoose models (Medication, DailyLog, …)
 hooks/                   useLiveClock, useToast
-scripts/seed.ts          `npm run seed` CLI
 ```
 
 ---
@@ -80,27 +79,15 @@ scripts/seed.ts          `npm run seed` CLI
 # 1. Install dependencies
 npm install
 
-# 2. Configure environment
-cp .env.example .env.local
-#   → fill in MONGODB_URI
-
-# 3. (Optional) seed the medications manually — the app also self-seeds
-npm run seed
-
-# 4. Run the dev server
+# 2. Run the dev server
 npm run dev
 ```
 
+The MongoDB connection string is set directly in
+[`lib/db.ts`](lib/db.ts) — there are no `.env` files to configure.
+
 Open <http://localhost:3000>. The four medications are inserted automatically on
 first load if the collection is empty.
-
----
-
-## 🔐 Environment variables
-
-| Variable      | Required | Description                                                  |
-| ------------- | :------: | ------------------------------------------------------------ |
-| `MONGODB_URI` |    ✅    | MongoDB Atlas connection string (include the database name). |
 
 ---
 
@@ -111,12 +98,9 @@ first load if the collection is empty.
 2. **Database Access** → *Add New Database User* → username + password (SCRAM).
 3. **Network Access** → *Add IP Address* → **Allow access from anywhere**
    (`0.0.0.0/0`) so Vercel's serverless functions can connect.
-4. **Connect → Drivers** → copy the connection string and replace `<password>`
-   and add a database name:
-   ```
-   mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/hair-reminder?retryWrites=true&w=majority
-   ```
-5. Put it in `MONGODB_URI`. Collections and indexes are created automatically.
+4. **Connect → Drivers** → copy the connection string.
+5. Set it as the `MONGODB_URI` constant in [`lib/db.ts`](lib/db.ts). Collections
+   and indexes are created automatically.
 
 ---
 
@@ -138,9 +122,7 @@ first load if the collection is empty.
 
 1. Push this repo to GitHub/GitLab/Bitbucket.
 2. In Vercel, **Add New → Project** and import the repo.
-3. Add `MONGODB_URI` under **Settings → Environment Variables** (Production +
-   Preview).
-4. **Deploy.** Open your deployment — medications seed on first load.
+3. **Deploy.** Open your deployment — medications seed on first load.
 
 ---
 
@@ -151,7 +133,6 @@ first load if the collection is empty.
 | `npm run dev`       | Start the dev server (Turbopack).            |
 | `npm run build`     | Production build.                            |
 | `npm run start`     | Run the production build.                    |
-| `npm run seed`      | Seed medications if the collection is empty. |
 | `npm run typecheck` | Strict TypeScript check (`tsc --noEmit`).    |
 | `npm run lint`      | ESLint.                                      |
 

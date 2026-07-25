@@ -22,7 +22,6 @@ export function MedicationsView({ data }: { data: MedicationsPageData }) {
   );
 }
 
-/** Header action for the medications page. */
 export function AddMedicationButton() {
   return (
     <MedicationFormDialog

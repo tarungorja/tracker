@@ -46,7 +46,6 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Apple Health inspired semantic ring/accent colors.
         health: {
           rose: "hsl(var(--health-rose))",
           amber: "hsl(var(--health-amber))",

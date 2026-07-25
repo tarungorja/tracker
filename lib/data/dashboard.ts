@@ -24,7 +24,7 @@ export interface DashboardData {
   totalToday: number;
   completedToday: number;
   remainingToday: number;
-  progress: number; // 0-100
+  progress: number;
   currentStreak: number;
   nextReminder: NextReminder | null;
   medications: MedicationView[];
@@ -46,7 +46,6 @@ function computeNextReminder(doses: DoseView[], nowMinutes: number): NextReminde
     };
   }
 
-  // Nothing left today — surface the earliest dose tomorrow.
   const earliest = [...doses].sort((a, b) => a.scheduledMinutes - b.scheduledMinutes)[0];
   if (!earliest) return null;
   return {
@@ -71,7 +70,6 @@ export async function getDashboardData(now: Date = new Date()): Promise<Dashboar
   const remainingToday = totalToday - completedToday;
   const progress = totalToday > 0 ? Math.round((completedToday / totalToday) * 100) : 0;
 
-  // Overlay today's live progress onto the heatmap's final cell.
   const today = completionMap.get(todayKey);
   if (today) {
     today.total = Math.max(today.total, totalToday);
@@ -103,7 +101,6 @@ export async function getDashboardData(now: Date = new Date()): Promise<Dashboar
   };
 }
 
-/** Human label for "in X minutes" / "in Xh Ym". */
 export function untilLabel(minutes: number): string {
   if (minutes <= 0) return "now";
   if (minutes < 60) return `in ${minutes} min`;

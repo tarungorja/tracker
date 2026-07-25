@@ -46,7 +46,6 @@ export function Timeline({ data }: { data: TodayData }) {
       </Reveal>
 
       <div className="relative pl-4">
-        {/* vertical spine */}
         <div className="absolute bottom-2 left-[1.35rem] top-2 w-px bg-border" aria-hidden />
 
         <div className="space-y-4">

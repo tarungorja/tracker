@@ -10,21 +10,14 @@ import { APP_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS, isActivePath } from "@/components/layout/nav-config";
 
-/**
- * Mobile navigation drawer. A hamburger button (shown only below `lg`) slides
- * the full sidebar in from the left, with the same links as the desktop
- * sidebar. Closes on route change, overlay tap, Escape, or a link tap.
- */
 export function MobileSidebar() {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
 
-  // Close the drawer whenever the route changes.
   React.useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  // While open: lock body scroll and close on Escape.
   React.useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {

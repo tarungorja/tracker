@@ -62,7 +62,6 @@ export function MedicationCard({ medication, todayKey, nowMinutes }: MedicationC
       </CardHeader>
 
       <CardContent className="flex flex-1 flex-col gap-4">
-        {/* Today's doses */}
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Today · {medication.completedToday}/{medication.totalToday} done
@@ -83,7 +82,6 @@ export function MedicationCard({ medication, todayKey, nowMinutes }: MedicationC
 
         <Separator />
 
-        {/* Instructions */}
         <div>
           <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Instructions
@@ -91,7 +89,6 @@ export function MedicationCard({ medication, todayKey, nowMinutes }: MedicationC
           <Instructions text={medication.instructions} />
         </div>
 
-        {/* History */}
         <div className="mt-auto">
           <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Last {pluralize(medication.history.length, "day")}

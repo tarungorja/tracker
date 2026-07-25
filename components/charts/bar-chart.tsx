@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 export interface BarDatum {
   label: string;
   value: number;
-  /** Optional secondary label shown under the primary (e.g. weekday). */
   caption?: string;
 }
 
@@ -16,9 +15,7 @@ interface BarChartProps {
   height?: number;
   barClassName?: string;
   className?: string;
-  /** Show the label under every Nth bar to avoid crowding. */
   labelEvery?: number;
-  /** Format the value shown on hover / above a bar. */
   formatValue?: (value: number) => string;
 }
 

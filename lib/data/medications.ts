@@ -54,7 +54,6 @@ export async function getMedicationsPageData(
     }).lean(),
   ]);
 
-  // Index history: medName -> date -> {total, completed}
   const historyIndex = new Map<string, Map<string, { total: number; completed: number }>>();
   for (const row of historyRows) {
     const perMed = historyIndex.get(row.medicationName) ?? new Map();
@@ -84,7 +83,6 @@ export async function getMedicationsPageData(
 
     const perMed = historyIndex.get(med.name);
     const history: MedHistoryDay[] = dayKeys.map((date) => {
-      // Only days the medication is actually scheduled on count toward history.
       const scheduledTotal = isMedicationDueOn(med, date) ? med.scheduleTimes.length : 0;
       const logged = perMed?.get(date);
       const total = date === todayKey ? scheduledTotal : logged?.total ?? scheduledTotal;

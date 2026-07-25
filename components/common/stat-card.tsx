@@ -32,7 +32,6 @@ interface StatCardProps {
   className?: string;
 }
 
-/** Compact metric tile used across the dashboard and statistics pages. */
 export function StatCard({
   label,
   value,

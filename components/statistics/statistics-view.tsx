@@ -18,7 +18,6 @@ export function StatisticsView({ data }: { data: StatisticsData }) {
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      {/* Completion rings */}
       <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
         <Reveal>
           <Card>
@@ -60,7 +59,6 @@ export function StatisticsView({ data }: { data: StatisticsData }) {
         </Reveal>
       </div>
 
-      {/* Stat tiles */}
       <Reveal delay={0.1} className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
         <StatCard
           label="Current streak"
@@ -82,7 +80,6 @@ export function StatisticsView({ data }: { data: StatisticsData }) {
         />
       </Reveal>
 
-      {/* Per-medication completion */}
       <Reveal delay={0.15}>
         <Card>
           <CardHeader>
@@ -97,7 +94,6 @@ export function StatisticsView({ data }: { data: StatisticsData }) {
         </Card>
       </Reveal>
 
-      {/* Heatmap */}
       <Reveal delay={0.2}>
         <Card>
           <CardHeader>

@@ -88,7 +88,6 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 export function useToast(): ToastContextValue {
   const ctx = React.useContext(ToastContext);
   if (!ctx) {
-    // Fail soft: outside a provider, toasts are no-ops rather than a crash.
     return { toast: () => undefined };
   }
   return ctx;

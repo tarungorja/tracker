@@ -13,7 +13,6 @@ const toggleSchema = z.object({
   enabled: z.boolean(),
 });
 
-/** Enable or disable reminders for a medication. */
 export async function setMedicationEnabled(
   input: z.infer<typeof toggleSchema>,
 ): Promise<ActionResult> {
@@ -45,7 +44,6 @@ const upsertSchema = z.object({
   intervalDays: z.number().int().min(1).max(30).optional(),
 });
 
-/** Create a new medication or update an existing one. */
 export async function upsertMedication(
   input: z.infer<typeof upsertSchema>,
 ): Promise<ActionResult> {
@@ -100,7 +98,6 @@ export async function upsertMedication(
 
 const deleteSchema = z.object({ id: z.string().min(1) });
 
-/** Permanently remove a medication. */
 export async function deleteMedication(
   input: z.infer<typeof deleteSchema>,
 ): Promise<ActionResult> {

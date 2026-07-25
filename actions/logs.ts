@@ -19,11 +19,6 @@ const doseSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 });
 
-/**
- * Mark a single dose complete/incomplete for a given day (defaults to today,
- * IST). Upserts the DailyLog row so a dose can be completed even if the cron
- * never created a row for it.
- */
 export async function setDoseCompletion(
   input: z.infer<typeof doseSchema>,
 ): Promise<ActionResult> {
@@ -64,7 +59,6 @@ const notesSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 });
 
-/** Attach a note to a specific dose. */
 export async function setDoseNotes(
   input: z.infer<typeof notesSchema>,
 ): Promise<ActionResult> {

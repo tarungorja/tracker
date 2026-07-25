@@ -4,7 +4,6 @@
 
 @layer base {
   :root {
-    /* Native system font stack — no network fetch, looks great everywhere. */
     --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
       "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
 
@@ -84,14 +83,13 @@
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
-  /* Subtle native-feeling focus rings */
+
   :focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }
 
 @layer components {
-  /* Apple-Health-inspired frosted glass card */
   .glass {
     @apply border border-white/40 bg-white/70 backdrop-blur-xl;
     box-shadow: 0 8px 40px -12px rgba(24, 24, 40, 0.18);
@@ -113,7 +111,7 @@
   .text-balance {
     text-wrap: balance;
   }
-  /* Thin, unobtrusive scrollbars */
+
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--border)) transparent;

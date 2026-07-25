@@ -1,7 +1,3 @@
-/**
- * Decorative, non-interactive gradient blobs that give the app its soft
- * Apple-Health ambiance. Purely presentational; rendered once behind the shell.
- */
 export function AmbientBackground() {
   return (
     <div

@@ -1,6 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Generic loading state that mirrors the header + card grid of every page. */
 export function PageSkeleton({ cards = 4 }: { cards?: number }) {
   return (
     <div className="animate-fade-in">

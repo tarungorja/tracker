@@ -24,11 +24,6 @@ export interface LiveClock {
   mounted: boolean;
 }
 
-/**
- * A ticking IST clock. Returns `mounted: false` on the very first render so
- * server and client markup match (avoiding hydration mismatch), then updates
- * every second.
- */
 export function useLiveClock(): LiveClock {
   const [now, setNow] = useState<Date | null>(null);
 

@@ -20,7 +20,7 @@ export function MedicationToggle({
   const { toast } = useToast();
 
   function handleChange(next: boolean) {
-    setOn(next); // optimistic
+    setOn(next);
     startTransition(async () => {
       const result = await setMedicationEnabled({ id, enabled: next });
       if (!result.ok) {

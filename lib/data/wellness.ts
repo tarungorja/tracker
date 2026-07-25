@@ -10,8 +10,8 @@ import { DailyLog } from "@/models";
 import { nowContext } from "@/lib/data/shared";
 
 const YEAR_DAYS = 365;
-const CALENDAR_DAYS = 119; // 17 weeks
-const WEEKLY_AVG_WINDOW = 84; // 12 weeks
+const CALENDAR_DAYS = 119;
+const WEEKLY_AVG_WINDOW = 84;
 
 export interface CountPoint {
   date: string;
@@ -46,7 +46,6 @@ export async function getWellnessData(now: Date = new Date()): Promise<WellnessD
   const { todayKey } = nowContext(now);
   const rangeStart = addDaysToKey(todayKey, -(YEAR_DAYS - 1));
 
-  // Wellness is stored as one DailyLog row per day keyed by WELLNESS_LOG_KEY.
   const logs = await DailyLog.find({
     medicationName: WELLNESS_LOG_KEY,
     date: { $gte: rangeStart, $lte: todayKey },
@@ -90,19 +89,15 @@ export async function getWellnessData(now: Date = new Date()): Promise<WellnessD
     if (date >= yearStart) totalThisYear += count;
   }
 
-  // Weekly average over the last 12 weeks.
   let windowTotal = 0;
   for (const date of dateKeyRange(addDaysToKey(todayKey, -(WEEKLY_AVG_WINDOW - 1)), todayKey)) {
     windowTotal += countMap.get(date) ?? 0;
   }
   const averagePerWeek = Math.round((windowTotal / (WEEKLY_AVG_WINDOW / 7)) * 10) / 10;
 
-  // Streaks are measured only within the tracked window (earliest log → today)
-  // so a brand-new tracker doesn't report an infinite "clean" streak.
   const earliestLogged = logs.find((l) => (l.count ?? 0) > 0)?.date ?? todayKey;
   const isClean = (key: string) => (countMap.get(key) ?? 0) === 0;
 
-  // Current clean streak: consecutive zero-count days ending today.
   let currentCleanStreak = 0;
   let cursor = todayKey;
   const floor = earliestLogged <= todayKey ? earliestLogged : todayKey;
@@ -111,7 +106,6 @@ export async function getWellnessData(now: Date = new Date()): Promise<WellnessD
     cursor = addDaysToKey(cursor, -1);
   }
 
-  // Longest clean streak across the tracked window.
   let longestCleanStreak = 0;
   let run = 0;
   const trackingKeys = dateKeyRange(earliestLogged, todayKey);
@@ -123,7 +117,7 @@ export async function getWellnessData(now: Date = new Date()): Promise<WellnessD
       run = 0;
     }
   }
-  // If nothing has ever been logged as >0, the whole window is one clean streak.
+
   if (logs.every((l) => (l.count ?? 0) === 0)) {
     const span = daysBetweenKeys(floor, todayKey) + 1;
     longestCleanStreak = Math.max(longestCleanStreak, span > 0 ? span : 1);

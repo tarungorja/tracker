@@ -5,7 +5,6 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 
-/** The persistent app chrome: ambient background, sidebar, topbar, mobile nav. */
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="relative flex min-h-screen">

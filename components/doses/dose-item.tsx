@@ -54,7 +54,7 @@ export function DoseItem({
 
   function toggle() {
     const next = !completed;
-    setCompleted(next); // optimistic
+    setCompleted(next);
     startTransition(async () => {
       const result = await setDoseCompletion({
         medicationName,
@@ -63,7 +63,7 @@ export function DoseItem({
         date,
       });
       if (!result.ok) {
-        setCompleted(!next); // rollback
+        setCompleted(!next);
         toast({ title: "Couldn't save", description: result.error, variant: "error" });
       } else if (next) {
         toast({ title: "Nice! Dose completed", variant: "success" });

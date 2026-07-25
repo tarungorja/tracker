@@ -7,7 +7,6 @@ function barColor(percent: number): string {
   return "bg-health-rose";
 }
 
-/** Horizontal per-medication adherence bars. */
 export function CompletionBars({ stats }: { stats: MedicationStat[] }) {
   if (stats.length === 0) {
     return (

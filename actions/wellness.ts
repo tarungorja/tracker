@@ -18,12 +18,10 @@ const dateSchema = z
   .regex(/^\d{4}-\d{2}-\d{2}$/)
   .optional();
 
-/** The (medicationName, scheduledTime) sentinel identifying the wellness row. */
 function wellnessKey(day: string) {
   return { date: day, medicationName: WELLNESS_LOG_KEY, scheduledTime: WELLNESS_LOG_KEY };
 }
 
-/** Adjust today's count by a delta, clamped at zero. Returns the new count. */
 async function adjustCount(delta: number, date?: string): Promise<CountResult> {
   const day = date ?? istDateKey();
   try {

@@ -11,7 +11,6 @@ export interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
-  /** Short label for the mobile bottom bar. */
   short: string;
 }
 
@@ -23,7 +22,6 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Wellness", href: "/wellness", icon: HeartPulse, short: "Wellness" },
 ];
 
-/** Match the active nav item for a pathname (longest prefix wins). */
 export function isActivePath(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
