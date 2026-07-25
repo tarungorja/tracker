@@ -11,11 +11,17 @@ export const env = {
   USER_EMAIL: process.env.USER_EMAIL ?? "",
   /** Optional shared secret to protect the cron endpoint. */
   CRON_SECRET: process.env.CRON_SECRET ?? "",
-  /** Absolute base URL used to build links inside emails. */
+  /**
+   * Absolute base URL used to build links inside emails.
+   * On Vercel this is auto-detected from the production domain, so you only
+   * need to set APP_URL manually for a custom domain or non-Vercel host.
+   */
   APP_URL:
     process.env.APP_URL ??
     process.env.NEXT_PUBLIC_APP_URL ??
-    "http://localhost:3000",
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "http://localhost:3000"),
 } as const;
 
 export const isDatabaseConfigured = Boolean(env.MONGODB_URI);

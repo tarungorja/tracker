@@ -178,10 +178,15 @@ src/
 ## ☁️ Deployment
 
 1. Push to GitHub and import into **Vercel** (or any Node host).
-2. Set the environment variables from `.env.example`.
-3. Set `APP_URL` to your deployed URL.
-4. Configure the cron (see above). Set `CRON_SECRET` and add it to your
-   scheduler.
+2. In **Project → Settings → Environment Variables**, add the values from your
+   `.env.local` (`MONGODB_URI`, `RESEND_API_KEY`, `RESEND_FROM`, `USER_EMAIL`).
+   `.env.local` is gitignored, so these are **not** deployed for you.
+3. `APP_URL` is optional on Vercel — it's auto-detected from your production
+   domain. Set it only if you use a custom domain or a non-Vercel host.
+4. Set `CRON_SECRET` to a random string. Vercel Cron sends it automatically as
+   `Authorization: Bearer <secret>`, and it also protects the email action links.
+   Per-minute cron requires **Vercel Pro**; on Hobby the schedule runs once a day
+   (see [Reminders](#-reminders-cron) for external schedulers if you're on Hobby).
 5. Run `npm run seed` once against the production database.
 
 ---
