@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Check, Loader2 } from "lucide-react";
 
-import { setDayNotes } from "@/actions/masturbation";
+import { setDayNotes } from "@/actions/wellness";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";

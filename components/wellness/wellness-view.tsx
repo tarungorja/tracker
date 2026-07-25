@@ -1,6 +1,6 @@
 import { CalendarDays, Flame, Gauge, Shield, TrendingUp } from "lucide-react";
 
-import type { MasturbationData } from "@/lib/data/masturbation";
+import type { WellnessData } from "@/lib/data/wellness";
 import { pluralize } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,9 +8,9 @@ import { EmptyState } from "@/components/common/empty-state";
 import { Reveal } from "@/components/common/reveal";
 import { StatCard } from "@/components/common/stat-card";
 import { Heatmap, type HeatmapDay } from "@/components/charts/heatmap";
-import { Counter } from "@/components/masturbation/counter";
-import { NotesEditor } from "@/components/masturbation/notes-editor";
-import { TrendCharts } from "@/components/masturbation/trend-charts";
+import { Counter } from "@/components/wellness/counter";
+import { NotesEditor } from "@/components/wellness/notes-editor";
+import { TrendCharts } from "@/components/wellness/trend-charts";
 
 function intensity(count: number): number {
   if (count <= 0) return 0;
@@ -20,7 +20,7 @@ function intensity(count: number): number {
   return 1;
 }
 
-export function WellnessView({ data }: { data: MasturbationData }) {
+export function WellnessView({ data }: { data: WellnessData }) {
   const calendarDays: HeatmapDay[] = data.calendar.map((p) => ({
     date: p.date,
     value: intensity(p.count),

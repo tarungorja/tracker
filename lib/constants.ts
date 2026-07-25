@@ -3,12 +3,18 @@
  * the timeline slots, and the reminder window size.
  */
 
-export const APP_NAME = "Hair Reminder";
+export const APP_NAME = "Hair Health Tracker";
 export const APP_DESCRIPTION =
-  "Track your hair-care medications, get reminder emails, and monitor daily wellness.";
+  "Track your hair-care medications, log daily completion, and monitor daily wellness.";
 
-/** How wide the "due soon" window is, in minutes. Matches the 5-min cron. */
-export const REMINDER_WINDOW_MINUTES = 5;
+/**
+ * Reserved `medicationName` / `scheduledTime` used for the single per-day
+ * wellness row stored in the `dailylogs` collection. The unique
+ * (date, medicationName, scheduledTime) index therefore allows exactly one
+ * wellness entry per day, and medication queries exclude this key so the
+ * wellness row never counts as a dose.
+ */
+export const WELLNESS_LOG_KEY = "__wellness__";
 
 /** Seed definition for a medication. */
 export interface SeedMedication {
@@ -16,6 +22,8 @@ export interface SeedMedication {
   description: string;
   instructions: string;
   scheduleTimes: string[];
+  /** Recurrence in days (1 = daily, 2 = every other day). Defaults to 1. */
+  intervalDays?: number;
 }
 
 /**
@@ -50,6 +58,14 @@ export const SEED_MEDICATIONS: SeedMedication[] = [
     instructions:
       "MORNING\nUse after bath.\nApply 1 ml.\nMassage scalp for 2 minutes.\n\nNIGHT\nApply one hour before sleeping.\nMassage scalp for 2 minutes.\nLeave overnight.\n\nGENERAL WARNINGS\nPatch test before first use.\nDo not use if you notice redness, itching or rash.\nCan cause dryness.",
     scheduleTimes: ["8:00 AM", "9:00 PM"],
+  },
+  {
+    name: "Headbath",
+    description: "Wash your hair once every two days.",
+    instructions:
+      "Wash your hair thoroughly with lukewarm water and a mild shampoo.\nAvoid very hot water.\nGently pat dry — don't rub harshly.",
+    scheduleTimes: ["8:00 AM"],
+    intervalDays: 2,
   },
 ];
 

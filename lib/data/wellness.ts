@@ -5,7 +5,8 @@ import {
   daysBetweenKeys,
   shortDateLabel,
 } from "@/lib/time";
-import { MasturbationLog } from "@/models";
+import { WELLNESS_LOG_KEY } from "@/lib/constants";
+import { DailyLog } from "@/models";
 import { nowContext } from "@/lib/data/shared";
 
 const YEAR_DAYS = 365;
@@ -25,7 +26,7 @@ export interface HistoryEntry {
   notes: string;
 }
 
-export interface MasturbationData {
+export interface WellnessData {
   todayKey: string;
   todayCount: number;
   todayNotes: string;
@@ -40,12 +41,16 @@ export interface MasturbationData {
   totalTracked: number;
 }
 
-export async function getMasturbationData(now: Date = new Date()): Promise<MasturbationData> {
+export async function getWellnessData(now: Date = new Date()): Promise<WellnessData> {
   await connectToDatabase();
   const { todayKey } = nowContext(now);
   const rangeStart = addDaysToKey(todayKey, -(YEAR_DAYS - 1));
 
-  const logs = await MasturbationLog.find({ date: { $gte: rangeStart, $lte: todayKey } })
+  // Wellness is stored as one DailyLog row per day keyed by WELLNESS_LOG_KEY.
+  const logs = await DailyLog.find({
+    medicationName: WELLNESS_LOG_KEY,
+    date: { $gte: rangeStart, $lte: todayKey },
+  })
     .sort({ date: 1 })
     .lean();
 

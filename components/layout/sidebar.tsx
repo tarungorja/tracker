@@ -53,7 +53,7 @@ export function Sidebar() {
       <div className="mt-auto rounded-2xl bg-secondary/60 p-4 text-xs text-muted-foreground">
         <p className="font-semibold text-foreground">Stay consistent 🌱</p>
         <p className="mt-1 leading-relaxed">
-          Reminders are checked every 5 minutes and delivered to your inbox.
+          Mark each dose as done to keep your streak going.
         </p>
       </div>
     </aside>

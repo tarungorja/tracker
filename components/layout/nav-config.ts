@@ -20,7 +20,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Today", href: "/today", icon: CalendarCheck, short: "Today" },
   { label: "Medications", href: "/medications", icon: Pill, short: "Meds" },
   { label: "Statistics", href: "/statistics", icon: BarChart3, short: "Stats" },
-  { label: "Wellness", href: "/masturbation", icon: HeartPulse, short: "Wellness" },
+  { label: "Wellness", href: "/wellness", icon: HeartPulse, short: "Wellness" },
 ];
 
 /** Match the active nav item for a pathname (longest prefix wins). */

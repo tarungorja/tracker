@@ -4,8 +4,6 @@
  */
 export { Medication, type MedicationDoc } from "@/models/medication";
 export { DailyLog, type DailyLogDoc } from "@/models/daily-log";
-export { ReminderHistory, type ReminderHistoryDoc } from "@/models/reminder-history";
-export { MasturbationLog, type MasturbationLogDoc } from "@/models/masturbation-log";
 
 /**
  * Shared, plain-object shapes returned to Client Components. Mongoose documents
@@ -18,6 +16,10 @@ export interface MedicationView {
   description: string;
   instructions: string;
   scheduleTimes: string[];
+  /** Recurrence in days: 1 = daily, 2 = every other day, etc. */
+  intervalDays: number;
+  /** IST day key the recurrence is anchored to (the medication's created day). */
+  startDateKey: string;
   enabled: boolean;
 }
 

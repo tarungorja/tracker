@@ -1,4 +1,4 @@
-import { CalendarRange, Flame, Mail, Target, TrendingUp, XCircle } from "lucide-react";
+import { CalendarRange, Flame, Target, TrendingUp, XCircle } from "lucide-react";
 
 import type { StatisticsData } from "@/lib/data/statistics";
 import { pluralize } from "@/lib/utils";
@@ -79,12 +79,6 @@ export function StatisticsView({ data }: { data: StatisticsData }) {
           value={data.missedReminders}
           icon={XCircle}
           accent="amber"
-        />
-        <StatCard
-          label="Emails sent"
-          value={data.emailsSent}
-          icon={Mail}
-          accent="blue"
         />
       </Reveal>
 

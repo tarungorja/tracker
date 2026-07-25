@@ -4,7 +4,7 @@ import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Minus, Plus, RotateCcw } from "lucide-react";
 
-import { decrementCount, incrementCount, resetCount } from "@/actions/masturbation";
+import { decrementCount, incrementCount, resetCount } from "@/actions/wellness";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -38,8 +38,8 @@ export function Counter({
   }
 
   return (
-    <Card>
-      <CardContent className="flex flex-col items-center gap-6 p-8">
+    <Card className="h-full">
+      <CardContent className="flex h-full flex-col items-center justify-center gap-6 p-8">
         <div className="text-center">
           <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
             Today

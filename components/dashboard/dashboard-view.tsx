@@ -37,7 +37,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
       <div className="grid gap-4 sm:gap-5 lg:grid-cols-3">
         <Reveal className="lg:col-span-2">
           <Card className="h-full">
-            <CardContent className="flex flex-col items-center gap-6 p-6 sm:flex-row sm:gap-8">
+            <CardContent className="flex h-full flex-col items-center justify-center gap-6 p-6 sm:flex-row sm:gap-8">
               <ProgressRing value={data.progress} size={168}>
                 <span className="text-4xl font-bold tabular-nums">{data.progress}%</span>
                 <span className="text-xs font-medium text-muted-foreground">today</span>
@@ -96,7 +96,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
             <CardHeader className="flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Timer className="h-4 w-4 text-primary" />
-                Today&apos;s reminders
+                Today&apos;s doses
               </CardTitle>
               <Button asChild variant="ghost" size="sm">
                 <Link href="/today">
@@ -109,7 +109,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
                 <EmptyState
                   icon={Pill}
                   title="No doses scheduled"
-                  description="Enable a medication to start receiving reminders."
+                  description="Enable a medication to see its doses here."
                 />
               ) : (
                 upcomingDoses.map((dose) => (
@@ -206,7 +206,7 @@ function NextReminderCard({ data }: { data: DashboardData }) {
     <Card className="p-4 sm:p-5">
       <div className="flex items-start justify-between gap-2">
         <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Next reminder
+          Next dose
         </span>
         <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-health-blue/12 text-health-blue">
           <Timer className="h-4 w-4" />

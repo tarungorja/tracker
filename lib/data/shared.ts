@@ -2,11 +2,13 @@ import { connectToDatabase } from "@/lib/db";
 import {
   addDaysToKey,
   dateKeyRange,
+  daysBetweenKeys,
   istDateKey,
   istMinutesOfDay,
   parseScheduleToMinutes,
 } from "@/lib/time";
 import { ensureSeeded } from "@/lib/seed";
+import { WELLNESS_LOG_KEY } from "@/lib/constants";
 import type { DoseStatus, DoseView, MedicationView } from "@/models";
 import { DailyLog, Medication } from "@/models";
 
@@ -24,16 +26,36 @@ export async function getMedicationViews(onlyEnabled = false): Promise<Medicatio
   await ensureSeeded();
   const filter = onlyEnabled ? { enabled: true } : {};
   const meds = await Medication.find(filter).sort({ name: 1 }).lean();
-  return meds.map((med) => ({
-    id: String(med._id),
-    name: med.name,
-    description: med.description ?? "",
-    instructions: med.instructions ?? "",
-    scheduleTimes: (med.scheduleTimes ?? []).slice().sort((a, b) => {
-      return (parseScheduleToMinutes(a) ?? 0) - (parseScheduleToMinutes(b) ?? 0);
-    }),
-    enabled: Boolean(med.enabled),
-  }));
+  return meds.map((med) => {
+    const createdAt = (med as { createdAt?: Date }).createdAt;
+    return {
+      id: String(med._id),
+      name: med.name,
+      description: med.description ?? "",
+      instructions: med.instructions ?? "",
+      scheduleTimes: (med.scheduleTimes ?? []).slice().sort((a, b) => {
+        return (parseScheduleToMinutes(a) ?? 0) - (parseScheduleToMinutes(b) ?? 0);
+      }),
+      intervalDays: Math.max(1, Math.round((med as { intervalDays?: number }).intervalDays ?? 1)),
+      startDateKey: createdAt ? istDateKey(createdAt) : istDateKey(),
+      enabled: Boolean(med.enabled),
+    };
+  });
+}
+
+/**
+ * Whether a medication is scheduled on a given IST day, honouring its recurrence
+ * interval. Daily meds (interval 1) are due every day; an every-N-days med is
+ * due on days that are a whole multiple of N from its start (created) day.
+ */
+export function isMedicationDueOn(
+  med: Pick<MedicationView, "intervalDays" | "startDateKey">,
+  dateKey: string,
+): boolean {
+  const interval = med.intervalDays ?? 1;
+  if (interval <= 1) return true;
+  if (!med.startDateKey || dateKey < med.startDateKey) return false;
+  return daysBetweenKeys(med.startDateKey, dateKey) % interval === 0;
 }
 
 /**
@@ -44,7 +66,10 @@ export async function getMedicationViews(onlyEnabled = false): Promise<Medicatio
 export async function getDosesForDay(dateKey: string): Promise<DoseView[]> {
   await connectToDatabase();
   const meds = await getMedicationViews(true);
-  const logs = await DailyLog.find({ date: dateKey }).lean();
+  const logs = await DailyLog.find({
+    date: dateKey,
+    medicationName: { $ne: WELLNESS_LOG_KEY },
+  }).lean();
 
   const logMap = new Map<string, { completed: boolean; completedAt: Date | null }>();
   for (const log of logs) {
@@ -56,6 +81,7 @@ export async function getDosesForDay(dateKey: string): Promise<DoseView[]> {
 
   const doses: DoseView[] = [];
   for (const med of meds) {
+    if (!isMedicationDueOn(med, dateKey)) continue;
     for (const time of med.scheduleTimes) {
       const minutes = parseScheduleToMinutes(time) ?? 0;
       const log = logMap.get(`${med.name}|${time}`);
@@ -97,7 +123,12 @@ export async function getCompletionMap(
     total: number;
     completed: number;
   }>([
-    { $match: { date: { $gte: startKey, $lte: endKey } } },
+    {
+      $match: {
+        date: { $gte: startKey, $lte: endKey },
+        medicationName: { $ne: WELLNESS_LOG_KEY },
+      },
+    },
     {
       $group: {
         _id: "$date",

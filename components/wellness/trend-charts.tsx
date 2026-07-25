@@ -1,6 +1,6 @@
 "use client";
 
-import type { CountPoint } from "@/lib/data/masturbation";
+import type { CountPoint } from "@/lib/data/wellness";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, type BarDatum } from "@/components/charts/bar-chart";

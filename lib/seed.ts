@@ -18,6 +18,7 @@ export async function seedMedicationsIfEmpty(): Promise<number> {
   const docs = SEED_MEDICATIONS.map((med) => ({
     ...med,
     scheduleTimes: med.scheduleTimes.map(normalizeScheduleLabel),
+    intervalDays: med.intervalDays ?? 1,
     enabled: true,
   }));
 

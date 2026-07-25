@@ -1,16 +1,16 @@
 import { HeartPulse } from "lucide-react";
 
 import { isConfigured } from "@/lib/env";
-import { getMasturbationData } from "@/lib/data/masturbation";
+import { getWellnessData } from "@/lib/data/wellness";
 import { ConfigNotice } from "@/components/common/config-notice";
 import { PageHeader } from "@/components/common/page-header";
-import { WellnessView } from "@/components/masturbation/wellness-view";
+import { WellnessView } from "@/components/wellness/wellness-view";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Wellness" };
 
-export default async function MasturbationPage() {
+export default async function WellnessPage() {
   const configured = isConfigured();
 
   return (
@@ -21,7 +21,7 @@ export default async function MasturbationPage() {
         icon={HeartPulse}
       />
       <ConfigNotice />
-      {configured ? <WellnessView data={await getMasturbationData()} /> : null}
+      {configured ? <WellnessView data={await getWellnessData()} /> : null}
     </>
   );
 }

@@ -34,7 +34,7 @@ export function BarChart({
 
   return (
     <div className={cn("w-full", className)}>
-      <div className="flex items-end gap-1.5" style={{ height }}>
+      <div className="flex items-stretch gap-1.5" style={{ height }}>
         {data.map((d, i) => {
           const ratio = d.value / max;
           return (

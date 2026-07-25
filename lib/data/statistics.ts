@@ -1,6 +1,7 @@
 import { connectToDatabase } from "@/lib/db";
 import { addDaysToKey } from "@/lib/time";
-import { DailyLog, ReminderHistory } from "@/models";
+import { WELLNESS_LOG_KEY } from "@/lib/constants";
+import { DailyLog } from "@/models";
 import {
   currentStreak,
   DayCompletion,
@@ -29,7 +30,6 @@ export interface StatisticsData {
   currentStreak: number;
   longestStreak: number;
   missedReminders: number;
-  emailsSent: number;
   heatmap: DayCompletion[];
   medicationStats: MedicationStat[];
 }
@@ -40,10 +40,15 @@ export async function getStatisticsData(now: Date = new Date()): Promise<Statist
   const startKey = addDaysToKey(todayKey, -(STATS_DAYS - 1));
   const monthStartKey = `${todayKey.slice(0, 7)}-01`;
 
-  const [completionMap, medRows, missedReminders, emailsSent] = await Promise.all([
+  const [completionMap, medRows, missedReminders] = await Promise.all([
     getCompletionMap(startKey, todayKey),
     DailyLog.aggregate<{ _id: string; total: number; completed: number }>([
-      { $match: { date: { $gte: startKey, $lte: todayKey } } },
+      {
+        $match: {
+          date: { $gte: startKey, $lte: todayKey },
+          medicationName: { $ne: WELLNESS_LOG_KEY },
+        },
+      },
       {
         $group: {
           _id: "$medicationName",
@@ -52,8 +57,11 @@ export async function getStatisticsData(now: Date = new Date()): Promise<Statist
         },
       },
     ]),
-    DailyLog.countDocuments({ completed: false, date: { $lt: todayKey } }),
-    ReminderHistory.countDocuments({ emailSent: true }),
+    DailyLog.countDocuments({
+      completed: false,
+      date: { $lt: todayKey },
+      medicationName: { $ne: WELLNESS_LOG_KEY },
+    }),
   ]);
 
   const days = Array.from(completionMap.values()).sort((a, b) =>
@@ -100,7 +108,6 @@ export async function getStatisticsData(now: Date = new Date()): Promise<Statist
     currentStreak: currentStreak(todayKey, isDayComplete, true),
     longestStreak: longestStreak(orderedKeys, isDayComplete),
     missedReminders,
-    emailsSent,
     heatmap: days,
     medicationStats,
   };

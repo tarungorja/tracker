@@ -18,11 +18,9 @@ export function ConfigNotice() {
         <div className="text-sm">
           <p className="font-semibold text-foreground">Finish your setup</p>
           <p className="mt-1 text-muted-foreground">
-            Add <code className="rounded bg-secondary px-1 py-0.5">MONGODB_URI</code>,{" "}
-            <code className="rounded bg-secondary px-1 py-0.5">RESEND_API_KEY</code> and{" "}
-            <code className="rounded bg-secondary px-1 py-0.5">NOTIFICATION_EMAIL</code> to your
+            Add <code className="rounded bg-secondary px-1 py-0.5">MONGODB_URI</code> to your
             environment (see <code className="rounded bg-secondary px-1 py-0.5">.env.example</code>)
-            to enable data and reminder emails.
+            to enable data.
           </p>
         </div>
       </div>

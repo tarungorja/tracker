@@ -40,12 +40,18 @@ export function MedicationFormDialog({ medication, trigger }: MedicationFormDial
   const [times, setTimes] = React.useState<string[]>(
     medication?.scheduleTimes.length ? medication.scheduleTimes : ["8:00 AM"],
   );
+  const [intervalDays, setIntervalDays] = React.useState<number>(
+    medication?.intervalDays && medication.intervalDays > 0 ? medication.intervalDays : 1,
+  );
 
   function reset() {
     setName(medication?.name ?? "");
     setDescription(medication?.description ?? "");
     setInstructions(medication?.instructions ?? "");
     setTimes(medication?.scheduleTimes.length ? medication.scheduleTimes : ["8:00 AM"]);
+    setIntervalDays(
+      medication?.intervalDays && medication.intervalDays > 0 ? medication.intervalDays : 1,
+    );
   }
 
   function updateTime(index: number, value: string) {
@@ -70,6 +76,7 @@ export function MedicationFormDialog({ medication, trigger }: MedicationFormDial
         description: description.trim(),
         instructions,
         scheduleTimes: cleanTimes,
+        intervalDays: Math.max(1, Math.round(intervalDays) || 1),
       });
       if (result.ok) {
         toast({ title: isEdit ? "Medication updated" : "Medication added", variant: "success" });
@@ -164,6 +171,25 @@ export function MedicationFormDialog({ medication, trigger }: MedicationFormDial
               >
                 <Plus className="h-4 w-4" /> Add time
               </Button>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="med-interval">Repeat</Label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Every</span>
+              <Input
+                id="med-interval"
+                type="number"
+                min={1}
+                max={30}
+                value={intervalDays}
+                onChange={(e) => setIntervalDays(Number(e.target.value))}
+                className="w-20"
+              />
+              <span className="text-sm text-muted-foreground">
+                {intervalDays === 1 ? "day (daily)" : "days"}
+              </span>
             </div>
           </div>
 

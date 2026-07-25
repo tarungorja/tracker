@@ -1,8 +1,14 @@
 import { addDaysToKey, dateKeyRange, parseScheduleToMinutes } from "@/lib/time";
+import { WELLNESS_LOG_KEY } from "@/lib/constants";
 import type { MedicationView } from "@/models";
 import { DailyLog } from "@/models";
 import { connectToDatabase } from "@/lib/db";
-import { getDosesForDay, getMedicationViews, nowContext } from "@/lib/data/shared";
+import {
+  getDosesForDay,
+  getMedicationViews,
+  isMedicationDueOn,
+  nowContext,
+} from "@/lib/data/shared";
 
 const HISTORY_DAYS = 14;
 
@@ -42,7 +48,10 @@ export async function getMedicationsPageData(
   const [meds, todayDoses, historyRows] = await Promise.all([
     getMedicationViews(false),
     getDosesForDay(todayKey),
-    DailyLog.find({ date: { $gte: startKey, $lte: todayKey } }).lean(),
+    DailyLog.find({
+      date: { $gte: startKey, $lte: todayKey },
+      medicationName: { $ne: WELLNESS_LOG_KEY },
+    }).lean(),
   ]);
 
   // Index history: medName -> date -> {total, completed}
@@ -59,21 +68,24 @@ export async function getMedicationsPageData(
   const dayKeys = dateKeyRange(startKey, todayKey);
 
   const medications: MedicationWithHistory[] = meds.map((med) => {
-    const doses: MedTodayDose[] = med.scheduleTimes.map((time) => {
-      const match = todayDoses.find(
-        (d) => d.medicationName === med.name && d.scheduledTime === time,
-      );
-      return {
-        time,
-        minutes: parseScheduleToMinutes(time) ?? 0,
-        completed: match?.completed ?? false,
-      };
-    });
+    const dueToday = isMedicationDueOn(med, todayKey);
+    const doses: MedTodayDose[] = dueToday
+      ? med.scheduleTimes.map((time) => {
+          const match = todayDoses.find(
+            (d) => d.medicationName === med.name && d.scheduledTime === time,
+          );
+          return {
+            time,
+            minutes: parseScheduleToMinutes(time) ?? 0,
+            completed: match?.completed ?? false,
+          };
+        })
+      : [];
 
     const perMed = historyIndex.get(med.name);
     const history: MedHistoryDay[] = dayKeys.map((date) => {
-      // For today, prefer the live schedule length as denominator.
-      const scheduledTotal = med.scheduleTimes.length;
+      // Only days the medication is actually scheduled on count toward history.
+      const scheduledTotal = isMedicationDueOn(med, date) ? med.scheduleTimes.length : 0;
       const logged = perMed?.get(date);
       const total = date === todayKey ? scheduledTotal : logged?.total ?? scheduledTotal;
       const completed = logged?.completed ?? 0;

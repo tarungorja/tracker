@@ -14,6 +14,9 @@ const dailyLogSchema = new Schema(
     completed: { type: Boolean, default: false },
     completedAt: { type: Date, default: null },
     notes: { type: String, default: "" },
+    // Used only by the per-day wellness row (medicationName === WELLNESS_LOG_KEY);
+    // ignored for medication doses, which leave it at 0.
+    count: { type: Number, default: 0 },
   },
   { timestamps: true },
 );

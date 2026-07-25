@@ -42,6 +42,7 @@ const upsertSchema = z.object({
   description: z.string().max(300).optional(),
   instructions: z.string().max(2000).optional(),
   scheduleTimes: z.array(z.string().min(1)).min(1, "Add at least one time."),
+  intervalDays: z.number().int().min(1).max(30).optional(),
 });
 
 /** Create a new medication or update an existing one. */
@@ -54,6 +55,7 @@ export async function upsertMedication(
   }
 
   const { id, name, description, instructions, scheduleTimes } = parsed.data;
+  const intervalDays = parsed.data.intervalDays ?? 1;
   const normalizedTimes = Array.from(
     new Set(scheduleTimes.map(normalizeScheduleLabel)),
   );
@@ -69,6 +71,7 @@ export async function upsertMedication(
             description: description ?? "",
             instructions: instructions ?? "",
             scheduleTimes: normalizedTimes,
+            intervalDays,
           },
         },
       );
@@ -78,6 +81,7 @@ export async function upsertMedication(
         description: description ?? "",
         instructions: instructions ?? "",
         scheduleTimes: normalizedTimes,
+        intervalDays,
         enabled: true,
       });
     }
