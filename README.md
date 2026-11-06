@@ -79,12 +79,17 @@ hooks/                   useLiveClock, useToast
 # 1. Install dependencies
 npm install
 
-# 2. Run the dev server
+# 2. Create env files (database name is `health`)
+cp .env.development.example .env.development
+cp .env.production.example .env.production
+# then set a real MONGODB_URI in each
+
+# 3. Run the dev server (loads .env.development)
 npm run dev
 ```
 
-The MongoDB connection string is set directly in
-[`lib/db.ts`](lib/db.ts) — there are no `.env` files to configure.
+Use `npm run build` / `npm run start` for production (loads `.env.production`).
+Never commit real credentials — only the `*.example` files.
 
 Open <http://localhost:3000>. The four medications are inserted automatically on
 first load if the collection is empty.
@@ -99,8 +104,10 @@ first load if the collection is empty.
 3. **Network Access** → *Add IP Address* → **Allow access from anywhere**
    (`0.0.0.0/0`) so Vercel's serverless functions can connect.
 4. **Connect → Drivers** → copy the connection string.
-5. Set it as the `MONGODB_URI` constant in [`lib/db.ts`](lib/db.ts). Collections
-   and indexes are created automatically.
+5. Set `MONGODB_URI` in `.env.development` / `.env.production` locally (see the
+   `*.example` files; path must end with `/health`). On Vercel, add the same
+   variable in Project Settings → Environment Variables. Collections and indexes
+   are created automatically.
 
 ---
 
@@ -128,13 +135,16 @@ first load if the collection is empty.
 
 ## 🧰 Scripts
 
-| Command             | Description                                  |
-| ------------------- | -------------------------------------------- |
-| `npm run dev`       | Start the dev server (Turbopack).            |
-| `npm run build`     | Production build.                            |
-| `npm run start`     | Run the production build.                    |
-| `npm run typecheck` | Strict TypeScript check (`tsc --noEmit`).    |
-| `npm run lint`      | ESLint.                                      |
+| Command             | Description                                   |
+| ------------------- | --------------------------------------------- |
+| `npm run dev`       | Dev server (`.env.development`).              |
+| `npm run dev:prod`  | Dev server with production env.               |
+| `npm run build`     | Production build (`.env.production`).         |
+| `npm run build:dev` | Build with development env.                   |
+| `npm run start`     | Run production build (`.env.production`).     |
+| `npm run start:dev` | Run build with development env.               |
+| `npm run typecheck` | Strict TypeScript check (`tsc --noEmit`).     |
+| `npm run lint`      | ESLint.                                       |
 
 ---
 

@@ -4,9 +4,12 @@
   "private": true,
   "description": "Hair Health Tracker — track hair-care medications, log daily completion, and monitor daily wellness. Built with Next.js 15.",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "dotenv -e .env.development -- next dev",
+    "dev:prod": "dotenv -e .env.production -- next dev",
+    "build": "dotenv -e .env.production -- next build",
+    "build:dev": "dotenv -e .env.development -- next build",
+    "start": "dotenv -e .env.production -- next start",
+    "start:dev": "dotenv -e .env.development -- next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
   },
@@ -37,6 +40,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.20",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^9",
     "eslint-config-next": "^15.1.6",
     "postcss": "^8.4.49",

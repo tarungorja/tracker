@@ -1,6 +1,12 @@
 import mongoose, { type Mongoose } from 'mongoose';
 
-const MONGODB_URI = 'mongodb+srv://tarungorja:Gtarun%402002@cluster0.d56wetf.mongodb.net/';
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+    throw new Error(
+        'Missing MONGODB_URI. Copy .env.development.example to .env.development (or .env.production.example to .env.production) and set your MongoDB Atlas connection string.'
+    );
+}
 
 interface MongooseCache {
     conn: Mongoose | null;
@@ -34,4 +40,3 @@ export async function connectToDatabase(): Promise<Mongoose> {
 
     return cache.conn;
 }
-
