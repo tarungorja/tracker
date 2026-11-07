@@ -1,6 +1,6 @@
 import mongoose, { type Mongoose } from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI or 'mongodb+srv://tarungorja:D9kPL8hy1uymRBGw@cluster0.d56wetf.mongodb.net/test';
 
 if (!MONGODB_URI) {
     throw new Error(
