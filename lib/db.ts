@@ -1,12 +1,14 @@
 import mongoose, { type Mongoose } from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI or 'mongodb+srv://tarungorja:D9kPL8hy1uymRBGw@cluster0.d56wetf.mongodb.net/test';
-
-if (!MONGODB_URI) {
-    throw new Error(
-        'Missing MONGODB_URI. Copy .env.development.example to .env.development (or .env.production.example to .env.production) and set your MongoDB Atlas connection string.'
-    );
-}
+const MONGODB_URI = (() => {
+    const uri = process.env.MONGODB_URI;
+    if (!uri) {
+        throw new Error(
+            'Missing MONGODB_URI. Copy .env.development.example to .env.development (or .env.production.example to .env.production) and set your MongoDB Atlas connection string.'
+        );
+    }
+    return uri;
+})();
 
 interface MongooseCache {
     conn: Mongoose | null;
