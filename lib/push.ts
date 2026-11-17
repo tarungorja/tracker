@@ -1,6 +1,6 @@
 import { connectToDatabase } from "@/lib/db";
 import { getAdminMessaging } from "@/lib/firebase/admin";
-import { PushToken } from "@/models";
+import { PushToken, Session } from "@/models";
 
 export interface PushPayload {
   title: string;
@@ -27,8 +27,22 @@ export async function sendPushToUser(
   payload: PushPayload,
 ): Promise<{ sent: number; failed: number; error?: string }> {
   await connectToDatabase();
-  const docs = await PushToken.find({ userId }).select("token").lean();
-  const tokens = docs.map((d) => d.token);
+
+  // Deliver to every device still logged in as this user. A token whose session has ended
+  // (expired without signing out) is dropped. Tokens saved before sessions were tracked
+  // have no sessionId and are kept until they re-register.
+  const sessions = await Session.find({ userId, expiresAt: { $gt: new Date() } })
+    .select("_id")
+    .lean();
+  const sessionIds = sessions.map((s) => s._id);
+  await PushToken.deleteMany({ userId, sessionId: { $exists: true, $nin: sessionIds } });
+  const docs = await PushToken.find({
+    userId,
+    $or: [{ sessionId: { $in: sessionIds } }, { sessionId: { $exists: false } }],
+  })
+    .select("token")
+    .lean();
+  const tokens = Array.from(new Set(docs.map((d) => d.token)));
   if (tokens.length === 0) return { sent: 0, failed: 0 };
 
   const messaging = getAdminMessaging();

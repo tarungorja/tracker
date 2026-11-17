@@ -4,10 +4,11 @@ import * as React from "react";
 import { Bell, BellOff, BellRing, Loader2 } from "lucide-react";
 
 import {
-  getStoredPushToken,
+  isPushOptedOut,
   isPushSupported,
   requestPushToken,
   revokePushToken,
+  setPushOptOut,
 } from "@/lib/firebase/client";
 import { removePushToken, savePushToken, sendTestNotification } from "@/actions/push";
 import { Button } from "@/components/ui/button";
@@ -25,8 +26,25 @@ export function NotificationToggle() {
     (async () => {
       if (!(await isPushSupported())) return !cancelled && setState("unsupported");
       if (Notification.permission === "denied") return !cancelled && setState("denied");
-      const enabled = Notification.permission === "granted" && Boolean(getStoredPushToken());
-      if (!cancelled) setState(enabled ? "on" : "off");
+
+      // Notifications were already allowed on this browser: register this device for the
+      // signed-in user automatically (once per tab session), so every device that is logged
+      // in as this user receives reminders without clicking the bell again.
+      if (Notification.permission === "granted" && !isPushOptedOut()) {
+        try {
+          if (!sessionStorage.getItem("push-synced")) {
+            const token = await requestPushToken(false);
+            const result = await savePushToken({ token, userAgent: navigator.userAgent });
+            if (!result.ok) throw new Error(result.error);
+            sessionStorage.setItem("push-synced", "1");
+          }
+          if (!cancelled) setState("on");
+          return;
+        } catch {
+          // Fall through to the manual bell if silent registration fails.
+        }
+      }
+      if (!cancelled) setState("off");
     })();
     return () => {
       cancelled = true;
@@ -39,6 +57,10 @@ export function NotificationToggle() {
         const token = await requestPushToken();
         const result = await savePushToken({ token, userAgent: navigator.userAgent });
         if (!result.ok) throw new Error(result.error);
+        setPushOptOut(false);
+        try {
+          sessionStorage.setItem("push-synced", "1");
+        } catch {}
         setState("on");
         toast({
           title: "Reminders on",
@@ -58,8 +80,12 @@ export function NotificationToggle() {
 
   function disable() {
     startTransition(async () => {
+      setPushOptOut(true); // remembered so this browser isn't re-enabled automatically
       const token = await revokePushToken();
       if (token) await removePushToken({ token });
+      try {
+        sessionStorage.removeItem("push-synced");
+      } catch {}
       setState("off");
       toast({ title: "Reminders off", variant: "info" });
     });
@@ -68,7 +94,14 @@ export function NotificationToggle() {
   function sendTest() {
     startTransition(async () => {
       const result = await sendTestNotification();
-      if (!result.ok) {
+      if (result.ok) {
+        const n = result.sent ?? 1;
+        toast({
+          title: "Test sent",
+          description: `Sent to ${n} device${n === 1 ? "" : "s"} logged in as you.`,
+          variant: "success",
+        });
+      } else {
         toast({ title: "Test failed", description: result.error, variant: "error" });
       }
     });

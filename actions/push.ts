@@ -26,7 +26,13 @@ export async function savePushToken(
     await connectToDatabase();
     await PushToken.updateOne(
       { token: parsed.data.token },
-      { $set: { userId: user.id, userAgent: parsed.data.userAgent ?? "" } },
+      {
+        $set: {
+          userId: user.id,
+          sessionId: user.sessionId,
+          userAgent: parsed.data.userAgent ?? "",
+        },
+      },
       { upsert: true },
     );
     return { ok: true };

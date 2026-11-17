@@ -33,6 +33,24 @@ function storePushToken(token: string | null) {
   } catch {}
 }
 
+const OPT_OUT_KEY = "push-opt-out";
+
+/** True once the user explicitly turned reminders off on this browser. */
+export function isPushOptedOut(): boolean {
+  try {
+    return localStorage.getItem(OPT_OUT_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function setPushOptOut(optedOut: boolean) {
+  try {
+    if (optedOut) localStorage.setItem(OPT_OUT_KEY, "1");
+    else localStorage.removeItem(OPT_OUT_KEY);
+  } catch {}
+}
+
 export async function isPushSupported(): Promise<boolean> {
   if (typeof window === "undefined") return false;
   if (!("Notification" in window) || !("serviceWorker" in navigator)) return false;
@@ -40,12 +58,19 @@ export async function isPushSupported(): Promise<boolean> {
   return isSupported();
 }
 
-/** Asks for permission, registers the service worker and returns this browser's FCM token. */
-export async function requestPushToken(): Promise<string> {
+/**
+ * Registers the service worker and returns this browser's FCM token. Asks for permission
+ * only when `prompt` is true (a user gesture); otherwise it requires permission to be
+ * already granted, so it never shows a surprise permission dialog.
+ */
+export async function requestPushToken(prompt = true): Promise<string> {
   const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
   if (!vapidKey) throw new Error("Missing NEXT_PUBLIC_FIREBASE_VAPID_KEY.");
 
-  const permission = await Notification.requestPermission();
+  const permission =
+    Notification.permission === "default" && prompt
+      ? await Notification.requestPermission()
+      : Notification.permission;
   if (permission !== "granted") {
     throw new Error("Notifications are blocked. Allow them in your browser's site settings.");
   }

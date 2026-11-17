@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { connectToDatabase } from "@/lib/db";
-import { Session, User } from "@/models";
+import { PushToken, Session, User } from "@/models";
 
 export const SESSION_COOKIE = "session";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -12,6 +12,8 @@ const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 export interface AuthUser {
   id: string;
   email: string;
+  /** The login session of this browser/device. */
+  sessionId: string;
 }
 
 function hashToken(token: string): string {
@@ -50,7 +52,7 @@ export const getCurrentUser = cache(async (): Promise<AuthUser | null> => {
   const user = await User.findById(session.userId).lean();
   if (!user) return null;
 
-  return { id: String(user._id), email: user.email };
+  return { id: String(user._id), email: user.email, sessionId: String(session._id) };
 });
 
 /** For pages and server actions: returns the signed-in user or redirects to /signin. */
@@ -65,7 +67,9 @@ export async function destroySession(): Promise<void> {
   const token = jar.get(SESSION_COOKIE)?.value;
   if (token) {
     await connectToDatabase();
-    await Session.deleteOne({ tokenHash: hashToken(token) });
+    const session = await Session.findOneAndDelete({ tokenHash: hashToken(token) });
+    // This device is signed out, so it must stop receiving this user's notifications.
+    if (session) await PushToken.deleteMany({ sessionId: session._id });
   }
   jar.delete(SESSION_COOKIE);
 }
