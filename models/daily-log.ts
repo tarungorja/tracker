@@ -2,6 +2,7 @@ import { Schema, model, models, type InferSchemaType, type Model } from "mongoos
 
 const dailyLogSchema = new Schema(
   {
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
     date: { type: String, required: true, index: true },
     medicationName: { type: String, required: true },
     scheduledTime: { type: String, required: true },
@@ -14,7 +15,7 @@ const dailyLogSchema = new Schema(
 );
 
 dailyLogSchema.index(
-  { date: 1, medicationName: 1, scheduledTime: 1 },
+  { userId: 1, date: 1, medicationName: 1, scheduledTime: 1 },
   { unique: true },
 );
 

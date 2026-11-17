@@ -3,7 +3,6 @@ import type { Metadata, Viewport } from "next";
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/constants";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ToastProvider } from "@/components/providers/toast-provider";
-import { AppShell } from "@/components/layout/app-shell";
 
 import "./globals.css";
 
@@ -38,7 +37,7 @@ export default function RootLayout({
       <body className="font-sans">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <ToastProvider>
-            <AppShell>{children}</AppShell>
+            {children}
           </ToastProvider>
         </ThemeProvider>
       </body>

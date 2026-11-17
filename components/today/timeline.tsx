@@ -1,9 +1,11 @@
-import { CheckCircle2 } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, Pill } from "lucide-react";
 
 import type { TodayData } from "@/lib/data/today";
 import { cn, percent } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { EmptyState } from "@/components/common/empty-state";
 import { Reveal } from "@/components/common/reveal";
 import { DoseItem } from "@/components/doses/dose-item";
 
@@ -14,6 +16,20 @@ const DOT_STATE: Record<string, string> = {
 };
 
 export function Timeline({ data }: { data: TodayData }) {
+  if (data.total === 0) {
+    return (
+      <EmptyState
+        icon={Pill}
+        title="Nothing scheduled today"
+        description="Add a medication and its schedule to see your doses here."
+      >
+        <Link href="/medications" className="text-sm font-medium text-primary hover:underline">
+          Go to Medications
+        </Link>
+      </EmptyState>
+    );
+  }
+
   const pct = percent(data.completed, data.total);
 
   return (

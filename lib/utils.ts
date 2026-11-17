@@ -18,11 +18,3 @@ export function pluralize(count: number, singular: string, plural?: string): str
   const word = count === 1 ? singular : (plural ?? `${singular}s`);
   return `${count} ${word}`;
 }
-
-export function slugify(value: string): string {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}

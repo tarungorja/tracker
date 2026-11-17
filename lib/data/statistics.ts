@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 import { connectToDatabase } from "@/lib/db";
 import { addDaysToKey } from "@/lib/time";
 import { WELLNESS_LOG_KEY } from "@/lib/constants";
@@ -34,17 +36,21 @@ export interface StatisticsData {
   medicationStats: MedicationStat[];
 }
 
-export async function getStatisticsData(now: Date = new Date()): Promise<StatisticsData> {
+export async function getStatisticsData(
+  userId: string,
+  now: Date = new Date(),
+): Promise<StatisticsData> {
   await connectToDatabase();
   const { todayKey } = nowContext(now);
   const startKey = addDaysToKey(todayKey, -(STATS_DAYS - 1));
   const monthStartKey = `${todayKey.slice(0, 7)}-01`;
 
   const [completionMap, medRows, missedReminders] = await Promise.all([
-    getCompletionMap(startKey, todayKey),
+    getCompletionMap(userId, startKey, todayKey),
     DailyLog.aggregate<{ _id: string; total: number; completed: number }>([
       {
         $match: {
+          userId: new Types.ObjectId(userId),
           date: { $gte: startKey, $lte: todayKey },
           medicationName: { $ne: WELLNESS_LOG_KEY },
         },
@@ -58,6 +64,7 @@ export async function getStatisticsData(now: Date = new Date()): Promise<Statist
       },
     ]),
     DailyLog.countDocuments({
+      userId,
       completed: false,
       date: { $lt: todayKey },
       medicationName: { $ne: WELLNESS_LOG_KEY },

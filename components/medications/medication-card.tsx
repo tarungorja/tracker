@@ -1,6 +1,7 @@
 import { Pencil, Repeat } from "lucide-react";
 
 import type { MedicationWithHistory } from "@/lib/data/medications";
+import { formatDaysOfWeek } from "@/lib/time";
 import { pluralize } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -51,12 +52,10 @@ export function MedicationCard({ medication, todayKey, nowMinutes }: MedicationC
               {time}
             </Badge>
           ))}
-          {medication.intervalDays > 1 ? (
-            <Badge variant="outline" className="gap-1">
-              <Repeat className="h-3 w-3" />
-              Every {medication.intervalDays} days
-            </Badge>
-          ) : null}
+          <Badge variant="outline" className="gap-1">
+            <Repeat className="h-3 w-3" />
+            {formatDaysOfWeek(medication.daysOfWeek)}
+          </Badge>
           {!medication.enabled ? <Badge variant="warning">Paused</Badge> : null}
         </div>
       </CardHeader>

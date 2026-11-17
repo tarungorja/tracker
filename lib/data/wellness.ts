@@ -41,12 +41,16 @@ export interface WellnessData {
   totalTracked: number;
 }
 
-export async function getWellnessData(now: Date = new Date()): Promise<WellnessData> {
+export async function getWellnessData(
+  userId: string,
+  now: Date = new Date(),
+): Promise<WellnessData> {
   await connectToDatabase();
   const { todayKey } = nowContext(now);
   const rangeStart = addDaysToKey(todayKey, -(YEAR_DAYS - 1));
 
   const logs = await DailyLog.find({
+    userId,
     medicationName: WELLNESS_LOG_KEY,
     date: { $gte: rangeStart, $lte: todayKey },
   })

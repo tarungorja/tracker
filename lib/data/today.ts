@@ -18,9 +18,12 @@ export interface TodayData {
   completed: number;
 }
 
-export async function getTodayData(now: Date = new Date()): Promise<TodayData> {
+export async function getTodayData(
+  userId: string,
+  now: Date = new Date(),
+): Promise<TodayData> {
   const { todayKey, nowMinutes } = nowContext(now);
-  const doses = await getDosesForDay(todayKey);
+  const doses = await getDosesForDay(userId, todayKey);
 
   const byTime = new Map<string, TimelineSlot>();
   for (const dose of doses) {

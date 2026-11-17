@@ -39,6 +39,7 @@ export interface MedicationsPageData {
 }
 
 export async function getMedicationsPageData(
+  userId: string,
   now: Date = new Date(),
 ): Promise<MedicationsPageData> {
   await connectToDatabase();
@@ -46,9 +47,10 @@ export async function getMedicationsPageData(
   const startKey = addDaysToKey(todayKey, -(HISTORY_DAYS - 1));
 
   const [meds, todayDoses, historyRows] = await Promise.all([
-    getMedicationViews(false),
-    getDosesForDay(todayKey),
+    getMedicationViews(userId, false),
+    getDosesForDay(userId, todayKey),
     DailyLog.find({
+      userId,
       date: { $gte: startKey, $lte: todayKey },
       medicationName: { $ne: WELLNESS_LOG_KEY },
     }).lean(),

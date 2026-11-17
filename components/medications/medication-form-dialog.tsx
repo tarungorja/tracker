@@ -4,6 +4,9 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, X } from "lucide-react";
 
+import { ALL_DAYS, WEEKDAY_SHORT, labelToTimeInput } from "@/lib/time";
+import { cn } from "@/lib/utils";
+
 import type { MedicationView } from "@/models";
 import { deleteMedication, upsertMedication } from "@/actions/medications";
 import { Button } from "@/components/ui/button";
@@ -26,6 +29,11 @@ interface MedicationFormDialogProps {
   trigger: React.ReactNode;
 }
 
+function initialTimes(medication?: MedicationView): string[] {
+  const times = (medication?.scheduleTimes ?? []).map(labelToTimeInput).filter(Boolean);
+  return times.length > 0 ? times : ["08:00"];
+}
+
 export function MedicationFormDialog({ medication, trigger }: MedicationFormDialogProps) {
   const isEdit = Boolean(medication);
   const router = useRouter();
@@ -37,21 +45,21 @@ export function MedicationFormDialog({ medication, trigger }: MedicationFormDial
   const [name, setName] = React.useState(medication?.name ?? "");
   const [description, setDescription] = React.useState(medication?.description ?? "");
   const [instructions, setInstructions] = React.useState(medication?.instructions ?? "");
-  const [times, setTimes] = React.useState<string[]>(
-    medication?.scheduleTimes.length ? medication.scheduleTimes : ["8:00 AM"],
-  );
-  const [intervalDays, setIntervalDays] = React.useState<number>(
-    medication?.intervalDays && medication.intervalDays > 0 ? medication.intervalDays : 1,
+  const [times, setTimes] = React.useState<string[]>(initialTimes(medication));
+  const [days, setDays] = React.useState<number[]>(
+    medication?.daysOfWeek.length ? medication.daysOfWeek : [...ALL_DAYS],
   );
 
   function reset() {
     setName(medication?.name ?? "");
     setDescription(medication?.description ?? "");
     setInstructions(medication?.instructions ?? "");
-    setTimes(medication?.scheduleTimes.length ? medication.scheduleTimes : ["8:00 AM"]);
-    setIntervalDays(
-      medication?.intervalDays && medication.intervalDays > 0 ? medication.intervalDays : 1,
-    );
+    setTimes(initialTimes(medication));
+    setDays(medication?.daysOfWeek.length ? medication.daysOfWeek : [...ALL_DAYS]);
+  }
+
+  function toggleDay(day: number) {
+    setDays((prev) => (prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]));
   }
 
   function updateTime(index: number, value: string) {
@@ -68,6 +76,10 @@ export function MedicationFormDialog({ medication, trigger }: MedicationFormDial
       toast({ title: "Add at least one time", variant: "error" });
       return;
     }
+    if (days.length === 0) {
+      toast({ title: "Pick at least one day", variant: "error" });
+      return;
+    }
 
     startTransition(async () => {
       const result = await upsertMedication({
@@ -76,7 +88,7 @@ export function MedicationFormDialog({ medication, trigger }: MedicationFormDial
         description: description.trim(),
         instructions,
         scheduleTimes: cleanTimes,
-        intervalDays: Math.max(1, Math.round(intervalDays) || 1),
+        daysOfWeek: days,
       });
       if (result.ok) {
         toast({ title: isEdit ? "Medication updated" : "Medication added", variant: "success" });
@@ -115,8 +127,7 @@ export function MedicationFormDialog({ medication, trigger }: MedicationFormDial
         <DialogHeader>
           <DialogTitle>{isEdit ? "Edit medication" : "Add medication"}</DialogTitle>
           <DialogDescription>
-            Schedule times use IST, e.g. <span className="font-medium">8:00 AM</span> or{" "}
-            <span className="font-medium">9:00 PM</span>.
+            Pick the times and weekdays you take this medication. Times use IST.
           </DialogDescription>
         </DialogHeader>
 
@@ -147,9 +158,10 @@ export function MedicationFormDialog({ medication, trigger }: MedicationFormDial
               {times.map((time, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <Input
+                    type="time"
                     value={time}
                     onChange={(e) => updateTime(i, e.target.value)}
-                    placeholder="8:00 AM"
+                    aria-label={`Time ${i + 1}`}
                   />
                   <Button
                     type="button"
@@ -167,7 +179,7 @@ export function MedicationFormDialog({ medication, trigger }: MedicationFormDial
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => setTimes((prev) => [...prev, ""])}
+                onClick={() => setTimes((prev) => [...prev, "08:00"])}
               >
                 <Plus className="h-4 w-4" /> Add time
               </Button>
@@ -175,21 +187,36 @@ export function MedicationFormDialog({ medication, trigger }: MedicationFormDial
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="med-interval">Repeat</Label>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Every</span>
-              <Input
-                id="med-interval"
-                type="number"
-                min={1}
-                max={30}
-                value={intervalDays}
-                onChange={(e) => setIntervalDays(Number(e.target.value))}
-                className="w-20"
-              />
-              <span className="text-sm text-muted-foreground">
-                {intervalDays === 1 ? "day (daily)" : "days"}
-              </span>
+            <div className="flex items-center justify-between">
+              <Label>Days of the week</Label>
+              <button
+                type="button"
+                onClick={() => setDays(days.length === 7 ? [] : [...ALL_DAYS])}
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                {days.length === 7 ? "Clear" : "Every day"}
+              </button>
+            </div>
+            <div className="grid grid-cols-7 gap-1.5">
+              {ALL_DAYS.map((day) => {
+                const selected = days.includes(day);
+                return (
+                  <button
+                    key={day}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => toggleDay(day)}
+                    className={cn(
+                      "h-9 rounded-xl border text-xs font-semibold transition-colors",
+                      selected
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-input bg-background/60 text-muted-foreground hover:bg-secondary",
+                    )}
+                  >
+                    {WEEKDAY_SHORT[day]}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

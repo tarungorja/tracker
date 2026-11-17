@@ -56,13 +56,16 @@ function computeNextReminder(doses: DoseView[], nowMinutes: number): NextReminde
   };
 }
 
-export async function getDashboardData(now: Date = new Date()): Promise<DashboardData> {
+export async function getDashboardData(
+  userId: string,
+  now: Date = new Date(),
+): Promise<DashboardData> {
   const { todayKey, nowMinutes } = nowContext(now);
 
   const [doses, medications, completionMap] = await Promise.all([
-    getDosesForDay(todayKey),
-    getMedicationViews(true),
-    getCompletionMap(addDaysToKey(todayKey, -(HEATMAP_DAYS - 1)), todayKey),
+    getDosesForDay(userId, todayKey),
+    getMedicationViews(userId, true),
+    getCompletionMap(userId, addDaysToKey(todayKey, -(HEATMAP_DAYS - 1)), todayKey),
   ]);
 
   const totalToday = doses.length;

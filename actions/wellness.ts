@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 
+import { requireUser } from "@/lib/auth/session";
 import { connectToDatabase } from "@/lib/db";
 import { istDateKey } from "@/lib/time";
 import { WELLNESS_LOG_KEY } from "@/lib/constants";
@@ -18,15 +19,16 @@ const dateSchema = z
   .regex(/^\d{4}-\d{2}-\d{2}$/)
   .optional();
 
-function wellnessKey(day: string) {
-  return { date: day, medicationName: WELLNESS_LOG_KEY, scheduledTime: WELLNESS_LOG_KEY };
+function wellnessKey(userId: string, day: string) {
+  return { userId, date: day, medicationName: WELLNESS_LOG_KEY, scheduledTime: WELLNESS_LOG_KEY };
 }
 
 async function adjustCount(delta: number, date?: string): Promise<CountResult> {
+  const user = await requireUser();
   const day = date ?? istDateKey();
   try {
     await connectToDatabase();
-    const key = wellnessKey(day);
+    const key = wellnessKey(user.id, day);
     const existing = await DailyLog.findOne(key);
     const nextCount = Math.max(0, (existing?.count ?? 0) + delta);
 
@@ -57,10 +59,11 @@ export async function decrementCount(date?: string): Promise<CountResult> {
 
 export async function resetCount(date?: string): Promise<CountResult> {
   if (!dateSchema.safeParse(date).success) return { ok: false, error: "Invalid date." };
+  const user = await requireUser();
   const day = date ?? istDateKey();
   try {
     await connectToDatabase();
-    const key = wellnessKey(day);
+    const key = wellnessKey(user.id, day);
     await DailyLog.updateOne(
       key,
       { $set: { count: 0 }, $setOnInsert: key },
@@ -84,11 +87,12 @@ const notesSchema = z.object({
 export async function setDayNotes(input: z.infer<typeof notesSchema>): Promise<ActionResult> {
   const parsed = notesSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Invalid note." };
+  const user = await requireUser();
   const day = parsed.data.date ?? istDateKey();
 
   try {
     await connectToDatabase();
-    const key = wellnessKey(day);
+    const key = wellnessKey(user.id, day);
     await DailyLog.updateOne(
       key,
       { $set: { notes: parsed.data.notes }, $setOnInsert: key },

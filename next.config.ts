@@ -7,7 +7,7 @@ const projectRoot = dirname(fileURLToPath(import.meta.url));
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   outputFileTracingRoot: projectRoot,
-  serverExternalPackages: ["mongoose"],
+  serverExternalPackages: ["mongoose", "firebase-admin"],
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion"],
   },

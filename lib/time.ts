@@ -90,20 +90,6 @@ export function normalizeScheduleLabel(label: string): string {
   return minutes === null ? label.trim() : minutesToLabel(minutes);
 }
 
-export function istClockLabel(date: Date = new Date()): string {
-  return istMinutesOfDay(date) >= 0 ? minutesToLabel(istMinutesOfDay(date)) : "";
-}
-
-export function istTimestampLabel(date: Date = new Date()): string {
-  return new Intl.DateTimeFormat("en-GB", {
-    timeZone: IST_TIMEZONE,
-    weekday: "short",
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(date) + " · " + istClockLabel(date);
-}
-
 export function istDateKeyToUTC(dateKey: string): Date {
   const [year, month, day] = dateKey.split("-").map(Number);
 
@@ -144,4 +130,28 @@ export function shortDateLabel(dateKey: string): string {
     month: "short",
     day: "numeric",
   }).format(istDateKeyToUTC(dateKey));
+}
+
+export const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6] as const;
+export const WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
+
+/** Human summary of a set of weekdays (0 = Sunday), e.g. "Every day", "Mon, Wed, Fri". */
+export function formatDaysOfWeek(days: readonly number[]): string {
+  const set = new Set(days);
+  if (set.size === 7) return "Every day";
+  if (set.size === 5 && [1, 2, 3, 4, 5].every((d) => set.has(d))) return "Weekdays";
+  if (set.size === 2 && set.has(0) && set.has(6)) return "Weekends";
+  return Array.from(set)
+    .sort((a, b) => a - b)
+    .map((d) => WEEKDAY_SHORT[d])
+    .join(", ");
+}
+
+/** "2:00 PM" -> "14:00" (the value format of <input type="time">). */
+export function labelToTimeInput(label: string): string {
+  const minutes = parseScheduleToMinutes(label);
+  if (minutes === null) return "";
+  const h = Math.floor(minutes / 60).toString().padStart(2, "0");
+  const m = (minutes % 60).toString().padStart(2, "0");
+  return `${h}:${m}`;
 }

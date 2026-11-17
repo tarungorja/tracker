@@ -2,8 +2,9 @@
 
 import { z } from "zod";
 
+import { requireUser } from "@/lib/auth/session";
 import { connectToDatabase } from "@/lib/db";
-import { normalizeScheduleLabel } from "@/lib/time";
+import { normalizeScheduleLabel, parseScheduleToMinutes } from "@/lib/time";
 import { Medication } from "@/models";
 import { revalidateMedicationViews } from "@/actions/revalidate";
 import type { ActionResult } from "@/actions/logs";
@@ -18,11 +19,12 @@ export async function setMedicationEnabled(
 ): Promise<ActionResult> {
   const parsed = toggleSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Invalid medication." };
+  const user = await requireUser();
 
   try {
     await connectToDatabase();
     await Medication.updateOne(
-      { _id: parsed.data.id },
+      { _id: parsed.data.id, userId: user.id },
       { $set: { enabled: parsed.data.enabled } },
     );
     revalidateMedicationViews();
@@ -40,8 +42,15 @@ const upsertSchema = z.object({
   name: z.string().min(1, "Name is required.").max(120),
   description: z.string().max(300).optional(),
   instructions: z.string().max(2000).optional(),
-  scheduleTimes: z.array(z.string().min(1)).min(1, "Add at least one time."),
-  intervalDays: z.number().int().min(1).max(30).optional(),
+  scheduleTimes: z
+    .array(
+      z.string().refine((t) => parseScheduleToMinutes(t) !== null, "Enter a valid time."),
+    )
+    .min(1, "Add at least one time."),
+  daysOfWeek: z
+    .array(z.number().int().min(0).max(6))
+    .min(1, "Pick at least one day of the week.")
+    .max(7),
 });
 
 export async function upsertMedication(
@@ -52,8 +61,9 @@ export async function upsertMedication(
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid data." };
   }
 
+  const user = await requireUser();
   const { id, name, description, instructions, scheduleTimes } = parsed.data;
-  const intervalDays = parsed.data.intervalDays ?? 1;
+  const daysOfWeek = Array.from(new Set(parsed.data.daysOfWeek)).sort((a, b) => a - b);
   const normalizedTimes = Array.from(
     new Set(scheduleTimes.map(normalizeScheduleLabel)),
   );
@@ -62,24 +72,25 @@ export async function upsertMedication(
     await connectToDatabase();
     if (id) {
       await Medication.updateOne(
-        { _id: id },
+        { _id: id, userId: user.id },
         {
           $set: {
             name,
             description: description ?? "",
             instructions: instructions ?? "",
             scheduleTimes: normalizedTimes,
-            intervalDays,
+            daysOfWeek,
           },
         },
       );
     } else {
       await Medication.create({
+        userId: user.id,
         name,
         description: description ?? "",
         instructions: instructions ?? "",
         scheduleTimes: normalizedTimes,
-        intervalDays,
+        daysOfWeek,
         enabled: true,
       });
     }
@@ -103,10 +114,11 @@ export async function deleteMedication(
 ): Promise<ActionResult> {
   const parsed = deleteSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Invalid medication." };
+  const user = await requireUser();
 
   try {
     await connectToDatabase();
-    await Medication.deleteOne({ _id: parsed.data.id });
+    await Medication.deleteOne({ _id: parsed.data.id, userId: user.id });
     revalidateMedicationViews();
     return { ok: true };
   } catch (error) {
