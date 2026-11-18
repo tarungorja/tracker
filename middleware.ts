@@ -6,12 +6,16 @@ import { NextResponse, type NextRequest } from "next/server";
 // redirect loop).
 const SESSION_COOKIE = "session";
 const AUTH_PAGES = ["/signin", "/signup"];
+// Readable without an account (linked from the sign-in and sign-up forms).
+const PUBLIC_PAGES = ["/privacy"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isAuthPage = AUTH_PAGES.includes(pathname);
 
-  if (!isAuthPage && !request.cookies.has(SESSION_COOKIE)) {
+  const isPublicPage = isAuthPage || PUBLIC_PAGES.includes(pathname);
+
+  if (!isPublicPage && !request.cookies.has(SESSION_COOKIE)) {
     return NextResponse.redirect(new URL("/signin", request.url));
   }
   return NextResponse.next();

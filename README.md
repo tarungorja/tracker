@@ -26,7 +26,8 @@ calls over HTTP. See [Architecture](#-architecture).
 - **Statistics** — overall and monthly completion, current and longest streaks,
   missed doses, per-medication bars and an adherence heatmap.
 - **Dose reminders** — web push notifications (Firebase Cloud Messaging) at each
-  scheduled time. Turn them on with the bell in the top bar.
+  scheduled time. Right after signing in, if the browser hasn't decided yet, it shows its own
+  "Allow / Block" notification popup; the bell in the top bar turns reminders on or off later.
 - **UI** — glass cards, dark mode, responsive layout, Framer Motion, loading
   skeletons and error boundaries.
 
@@ -104,6 +105,7 @@ Create `.env.development` (it is gitignored) with:
 | -------- | ---------- |
 | `API_URL` | Base URL of the FastAPI backend, e.g. `http://localhost:8000`. Server-side only. |
 | `NEXT_PUBLIC_FIREBASE_API_KEY`, `_AUTH_DOMAIN`, `_PROJECT_ID`, `_STORAGE_BUCKET`, `_MESSAGING_SENDER_ID`, `_APP_ID` | Firebase web app config (public). |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Address shown on the privacy page for data requests. Set before launch. |
 | `NEXT_PUBLIC_FIREBASE_VAPID_KEY` | Web push certificate key from Firebase console → Cloud Messaging. |
 | `NODE_OPTIONS=--use-system-ca` | Only if your network intercepts HTTPS (corporate proxy) and Node rejects its certificate. |
 

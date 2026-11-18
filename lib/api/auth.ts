@@ -13,3 +13,8 @@ export function verifyOtp(input: { email: string; purpose: OtpPurpose; code: str
 export function signOut() {
   return apiRequest("POST", "/auth/signout");
 }
+
+/** Permanently deletes the signed-in account and all of its data. Also clears the session cookie. */
+export function deleteAccount() {
+  return apiRequest("DELETE", "/auth/me");
+}

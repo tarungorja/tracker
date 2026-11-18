@@ -51,6 +51,30 @@ export function setPushOptOut(optedOut: boolean) {
   } catch {}
 }
 
+const ASKED_KEY = "push-asked";
+
+/** True if the permission popup was already shown in this tab session (so reloads don't nag). */
+export function hasAskedForPush(): boolean {
+  try {
+    return sessionStorage.getItem(ASKED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function markAskedForPush() {
+  try {
+    sessionStorage.setItem(ASKED_KEY, "1");
+  } catch {}
+}
+
+/** Forget that we asked, so the next login in this tab is asked again. Called on sign-out. */
+export function forgetAskedForPush() {
+  try {
+    sessionStorage.removeItem(ASKED_KEY);
+  } catch {}
+}
+
 export async function isPushSupported(): Promise<boolean> {
   if (typeof window === "undefined") return false;
   if (!("Notification" in window) || !("serviceWorker" in navigator)) return false;

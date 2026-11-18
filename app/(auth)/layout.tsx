@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Sparkles } from "lucide-react";
 
@@ -26,6 +27,13 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
           <span className="text-base font-bold">{APP_NAME}</span>
         </div>
         {children}
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          By continuing you agree to how we handle your data, described in our{" "}
+          <Link href="/privacy" className="underline hover:text-foreground">
+            privacy policy
+          </Link>
+          .
+        </p>
       </div>
     </div>
   );
