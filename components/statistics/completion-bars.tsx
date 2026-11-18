@@ -1,4 +1,4 @@
-import type { MedicationStat } from "@/lib/data/statistics";
+import type { MedicationStat } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
 function barColor(percent: number): string {

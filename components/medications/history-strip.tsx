@@ -1,4 +1,4 @@
-import type { MedHistoryDay } from "@/lib/data/medications";
+import type { MedHistoryDay } from "@/lib/api/types";
 import { shortDateLabel } from "@/lib/time";
 import { cn } from "@/lib/utils";
 

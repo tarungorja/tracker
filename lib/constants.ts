@@ -2,6 +2,5 @@ export const APP_NAME = "Hair Health Tracker";
 export const APP_DESCRIPTION =
   "Track your hair-care medications and log daily completion.";
 
-export const WELLNESS_LOG_KEY = "__wellness__";
-
-export const HEATMAP_DAYS = 133;
+// Length of the emailed one-time code (the API enforces it; the UI uses it for copy).
+export const OTP_LENGTH = 6;

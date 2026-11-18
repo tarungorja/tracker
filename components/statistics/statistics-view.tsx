@@ -1,6 +1,6 @@
 import { CalendarRange, Flame, Target, TrendingUp, XCircle } from "lucide-react";
 
-import type { StatisticsData } from "@/lib/data/statistics";
+import type { StatisticsData } from "@/lib/api/types";
 import { pluralize } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Reveal } from "@/components/common/reveal";

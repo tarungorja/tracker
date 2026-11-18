@@ -1,6 +1,6 @@
 import { CalendarDays, Flame, Gauge, Shield, TrendingUp } from "lucide-react";
 
-import type { WellnessData } from "@/lib/data/wellness";
+import type { WellnessData } from "@/lib/api/types";
 import { pluralize } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

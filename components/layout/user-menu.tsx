@@ -4,8 +4,8 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 
-import { signOut } from "@/actions/auth";
-import { removePushToken } from "@/actions/push";
+import { signOut } from "@/lib/api/auth";
+import { removePushToken } from "@/lib/api/push";
 import { revokePushToken } from "@/lib/firebase/client";
 import { Button } from "@/components/ui/button";
 

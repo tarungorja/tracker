@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CheckCircle2, Pill } from "lucide-react";
 
-import type { TodayData } from "@/lib/data/today";
+import type { TodayData } from "@/lib/api/types";
 import { cn, percent } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";

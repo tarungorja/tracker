@@ -1,10 +1,11 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Minus, Plus, RotateCcw } from "lucide-react";
 
-import { decrementCount, incrementCount, resetCount } from "@/actions/wellness";
+import { decrementCount, incrementCount, resetCount } from "@/lib/api/wellness";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +17,7 @@ export function Counter({
   date: string;
   initialCount: number;
 }) {
+  const router = useRouter();
   const [count, setCount] = React.useState(initialCount);
   const [pending, startTransition] = React.useTransition();
   const { toast } = useToast();
@@ -31,8 +33,9 @@ export function Counter({
       if (!result.ok) {
         setCount(previous);
         toast({ title: "Couldn't update", description: result.error, variant: "error" });
-      } else if (typeof result.count === "number") {
-        setCount(result.count);
+      } else {
+        if (typeof result.count === "number") setCount(result.count);
+        router.refresh();
       }
     });
   }

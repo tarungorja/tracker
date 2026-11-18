@@ -10,7 +10,7 @@ import {
   revokePushToken,
   setPushOptOut,
 } from "@/lib/firebase/client";
-import { removePushToken, savePushToken, sendTestNotification } from "@/actions/push";
+import { removePushToken, savePushToken, sendTestNotification } from "@/lib/api/push";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -95,7 +95,7 @@ export function NotificationToggle() {
     startTransition(async () => {
       const result = await sendTestNotification();
       if (result.ok) {
-        const n = result.sent ?? 1;
+        const n = result.sent;
         toast({
           title: "Test sent",
           description: `Sent to ${n} device${n === 1 ? "" : "s"} logged in as you.`,

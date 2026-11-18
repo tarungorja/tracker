@@ -1,11 +1,12 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Check, Clock, Loader2 } from "lucide-react";
 
-import type { DoseStatus } from "@/models";
-import { setDoseCompletion } from "@/actions/logs";
+import type { DoseStatus } from "@/lib/api/types";
+import { setDoseCompletion } from "@/lib/api/doses";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -41,6 +42,7 @@ export function DoseItem({
   isToday = true,
   showMedName = true,
 }: DoseItemProps) {
+  const router = useRouter();
   const [completed, setCompleted] = React.useState(initialCompleted);
   const [pending, startTransition] = React.useTransition();
   const { toast } = useToast();
@@ -65,8 +67,9 @@ export function DoseItem({
       if (!result.ok) {
         setCompleted(!next);
         toast({ title: "Couldn't save", description: result.error, variant: "error" });
-      } else if (next) {
-        toast({ title: "Nice! Dose completed", variant: "success" });
+      } else {
+        if (next) toast({ title: "Nice! Dose completed", variant: "success" });
+        router.refresh();
       }
     });
   }

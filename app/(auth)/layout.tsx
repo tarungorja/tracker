@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Sparkles } from "lucide-react";
 
 import { APP_NAME } from "@/lib/constants";
-import { getCurrentUser } from "@/lib/auth/session";
+import { getCurrentUser } from "@/lib/api/server";
 import { AmbientBackground } from "@/components/layout/ambient-background";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 

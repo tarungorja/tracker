@@ -1,6 +1,7 @@
 // Service worker served at /firebase-messaging-sw.js (scope "/").
 // It receives FCM web pushes and shows the notification. Messages are sent data-only
-// (see lib/push.ts), so no Firebase SDK is needed in the worker.
+// by the API (tracker-api: app/services/push_service.py), so no Firebase SDK is needed here.
+// It stays in the UI because browsers require a service worker to be served from the app's origin.
 const SERVICE_WORKER = `
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));

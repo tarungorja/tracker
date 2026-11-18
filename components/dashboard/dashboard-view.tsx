@@ -9,9 +9,8 @@ import {
   Timer,
 } from "lucide-react";
 
-import type { DashboardData } from "@/lib/data/dashboard";
-import { untilLabel } from "@/lib/data/dashboard";
-import { pluralize } from "@/lib/utils";
+import type { DashboardData } from "@/lib/api/types";
+import { pluralize, untilLabel } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

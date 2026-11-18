@@ -1,6 +1,6 @@
 import { Pencil, Repeat } from "lucide-react";
 
-import type { MedicationWithHistory } from "@/lib/data/medications";
+import type { MedicationWithHistory } from "@/lib/api/types";
 import { formatDaysOfWeek } from "@/lib/time";
 import { pluralize } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";

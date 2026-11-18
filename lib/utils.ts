@@ -18,3 +18,12 @@ export function pluralize(count: number, singular: string, plural?: string): str
   const word = count === 1 ? singular : (plural ?? `${singular}s`);
   return `${count} ${word}`;
 }
+
+/** "in 25 min", "in 2h 5m", or "now". */
+export function untilLabel(minutes: number): string {
+  if (minutes <= 0) return "now";
+  if (minutes < 60) return `in ${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return mins === 0 ? `in ${hours}h` : `in ${hours}h ${mins}m`;
+}

@@ -7,8 +7,8 @@ import { Plus, Trash2, X } from "lucide-react";
 import { ALL_DAYS, WEEKDAY_SHORT, labelToTimeInput } from "@/lib/time";
 import { cn } from "@/lib/utils";
 
-import type { MedicationView } from "@/models";
-import { deleteMedication, upsertMedication } from "@/actions/medications";
+import type { MedicationView } from "@/lib/api/types";
+import { deleteMedication, upsertMedication } from "@/lib/api/medications";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

@@ -1,7 +1,6 @@
 import { Pill } from "lucide-react";
 
-import { requireUser } from "@/lib/auth/session";
-import { getMedicationsPageData } from "@/lib/data/medications";
+import { getMedicationsPageData } from "@/lib/api/server";
 import { PageHeader } from "@/components/common/page-header";
 import {
   AddMedicationButton,
@@ -13,7 +12,6 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Medications" };
 
 export default async function MedicationsPage() {
-  const user = await requireUser();
   return (
     <>
       <PageHeader
@@ -22,7 +20,7 @@ export default async function MedicationsPage() {
         icon={Pill}
         action={<AddMedicationButton />}
       />
-      <MedicationsView data={await getMedicationsPageData(user.id)} />
+      <MedicationsView data={await getMedicationsPageData()} />
     </>
   );
 }

@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
-import { OTP_LENGTH } from "@/lib/auth/otp-config";
-import type { OtpPurpose } from "@/models/otp";
-import { requestOtp, verifyOtp } from "@/actions/auth";
+import { requestOtp, verifyOtp } from "@/lib/api/auth";
+import type { OtpPurpose } from "@/lib/api/types";
+import { OTP_LENGTH } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

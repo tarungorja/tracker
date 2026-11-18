@@ -51,18 +51,6 @@ export function getISTParts(date: Date = new Date()): ISTParts {
   };
 }
 
-export function istDateKey(date: Date = new Date()): string {
-  const { year, month, day } = getISTParts(date);
-  return `${year.toString().padStart(4, "0")}-${month
-    .toString()
-    .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-}
-
-export function istMinutesOfDay(date: Date = new Date()): number {
-  const { hour, minute } = getISTParts(date);
-  return hour * 60 + minute;
-}
-
 export function parseScheduleToMinutes(label: string): number | null {
   const match = label.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
   if (!match) return null;
@@ -77,47 +65,12 @@ export function parseScheduleToMinutes(label: string): number | null {
   return hour * 60 + minute;
 }
 
-export function minutesToLabel(minutes: number): string {
-  const hour24 = Math.floor(minutes / 60) % 24;
-  const minute = minutes % 60;
-  const meridiem = hour24 >= 12 ? "PM" : "AM";
-  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
-  return `${hour12}:${minute.toString().padStart(2, "0")} ${meridiem}`;
-}
-
-export function normalizeScheduleLabel(label: string): string {
-  const minutes = parseScheduleToMinutes(label);
-  return minutes === null ? label.trim() : minutesToLabel(minutes);
-}
-
 export function istDateKeyToUTC(dateKey: string): Date {
   const [year, month, day] = dateKey.split("-").map(Number);
 
   const utcMillis = Date.UTC(year ?? 1970, (month ?? 1) - 1, day ?? 1, 0, 0, 0) -
     IST_OFFSET_MINUTES * 60_000;
   return new Date(utcMillis);
-}
-
-export function addDaysToKey(dateKey: string, days: number): string {
-  const base = istDateKeyToUTC(dateKey).getTime();
-  return istDateKey(new Date(base + days * 86_400_000));
-}
-
-export function dateKeyRange(startKey: string, endKey: string): string[] {
-  const keys: string[] = [];
-  let cursor = startKey;
-
-  for (let i = 0; i < 4000 && cursor <= endKey; i++) {
-    keys.push(cursor);
-    cursor = addDaysToKey(cursor, 1);
-  }
-  return keys;
-}
-
-export function daysBetweenKeys(startKey: string, endKey: string): number {
-  const a = istDateKeyToUTC(startKey).getTime();
-  const b = istDateKeyToUTC(endKey).getTime();
-  return Math.round((b - a) / 86_400_000);
 }
 
 export function weekdayOfKey(dateKey: string): number {

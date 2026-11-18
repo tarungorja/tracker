@@ -1,6 +1,6 @@
 import { Pill, Plus } from "lucide-react";
 
-import type { MedicationsPageData } from "@/lib/data/medications";
+import type { MedicationsPageData } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/common/empty-state";
 import { Reveal } from "@/components/common/reveal";

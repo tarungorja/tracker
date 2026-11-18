@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 
-import { setMedicationEnabled } from "@/actions/medications";
+import { setMedicationEnabled } from "@/lib/api/medications";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 
@@ -15,6 +16,7 @@ export function MedicationToggle({
   enabled: boolean;
   name: string;
 }) {
+  const router = useRouter();
   const [on, setOn] = React.useState(enabled);
   const [pending, startTransition] = React.useTransition();
   const { toast } = useToast();
@@ -31,6 +33,7 @@ export function MedicationToggle({
           title: next ? `${name} reminders on` : `${name} reminders off`,
           variant: "info",
         });
+        router.refresh();
       }
     });
   }

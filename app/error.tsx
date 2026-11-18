@@ -27,8 +27,8 @@ export default function Error({
           <div>
             <h2 className="text-lg font-bold">Something went wrong</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              We couldn&apos;t load this page. This usually means the database is
-              unreachable or the environment isn&apos;t configured yet.
+              We couldn&apos;t load this page. This usually means the API server is
+              unreachable or isn&apos;t configured yet.
             </p>
           </div>
           <Button onClick={reset}>

@@ -4,8 +4,9 @@ A **Next.js 15** app for tracking your own medications (Indian Standard Time),
 logging daily completion, and getting a push notification when a dose is due.
 Sign in with just your email: a one-time code is sent to you, no passwords.
 
-Everything runs **inside a single Next.js app** — Server Components, Server
-Actions and Route Handlers. No separate backend.
+This repo is the **UI only**. All business logic (auth, medications, doses, statistics,
+reminders, email, push) lives in a separate **FastAPI backend**, `tracker-api`, which this app
+calls over HTTP. See [Architecture](#-architecture).
 
 ---
 
@@ -36,16 +37,31 @@ Actions and Route Handlers. No separate backend.
 
 ---
 
+## 🏛️ Architecture
+
+```
+Browser ──► Next.js UI (this repo) ──/api/v1/*──► FastAPI (tracker-api) ──► MongoDB
+              │  Server Components call the API directly (cookie forwarded)
+              └  Client components call same-origin /api/v1/*, proxied by next.config.ts
+```
+
+- The API sets an **HttpOnly `session` cookie**. Because browser calls go through the Next.js
+  proxy (a rewrite in `next.config.ts`), the cookie stays first-party: no CORS setup needed.
+- Server Components fetch data with `lib/api/server.ts`, forwarding the visitor's cookie.
+  A `401` redirects to `/signin`.
+- Client components call `lib/api/*.ts`, which resolves to `{ ok: true, ... }` or
+  `{ ok: false, error }`. After a write, components call `router.refresh()` to re-render the
+  page with fresh server data.
+- The UI holds **no** database, email, Firebase-admin or scheduling code.
+
 ## 🧱 Tech stack
 
 | Layer      | Choice                                               |
 | ---------- | ---------------------------------------------------- |
 | Framework  | Next.js 15 (App Router) + React 19 + TypeScript      |
 | Styling    | Tailwind CSS + shadcn/ui components                  |
-| Database   | MongoDB Atlas + Mongoose                             |
-| Email      | Brevo transactional email API (over HTTPS)           |
-| Push       | Firebase Cloud Messaging (web push)                  |
-| Validation | Zod                                                  |
+| Backend    | FastAPI (`tracker-api`): MongoDB, Brevo email, FCM   |
+| Push (web) | Firebase client SDK (browser token) + service worker |
 | Hosting    | Vercel, or any host that runs `next start`           |
 
 ---
@@ -57,28 +73,26 @@ app/
   (auth)/                signin/ and signup/ pages (no app shell)
   (app)/                 signed-in pages: dashboard, today, medications,
                          statistics (+ hidden wellness) inside the app shell
-  api/cron/send-reminders/   reminder job endpoint (secured with CRON_SECRET)
   firebase-messaging-sw.js/  service worker that shows push notifications
 components/              ui/, layout/, auth/, medications/, today/, dashboard/, …
-actions/                 Server Actions: auth, push, medications, logs, wellness
 lib/
-  auth/                  OTP generation/hashing, Mongo-backed sessions
-  data/                  Server-side query helpers (all scoped by userId)
-  firebase/              admin (server) and client (browser) setup
-  db.ts                  Cached Mongoose connection
-  email.ts               Brevo email sender
-  push.ts, reminders.ts  Sending pushes and finding due doses
-  time.ts                IST helpers (the app runs entirely on IST)
-models/                  User, Otp, Session, Medication, DailyLog,
-                         PushToken, ReminderSent
+  api/
+    types.ts             response types (mirror the API's schemas)
+    client.ts            browser fetch wrapper for /api/v1/*
+    server.ts            Server Component access to the API (forwards the cookie)
+    auth.ts, medications.ts, doses.ts, wellness.ts, push.ts   typed endpoint calls
+  firebase/client.ts     browser push-token registration
+  time.ts                IST display helpers
 middleware.ts            Redirects signed-out visitors to /signin
-instrumentation*.ts      Starts the reminder timer (see below)
-scripts/                 One-off scripts (migration)
 ```
 
 ---
 
 ## 🚀 Local setup
+
+1. Start the backend first (see `tracker-api/README.md`): it needs MongoDB, Brevo and
+   Firebase credentials. Default address: `http://localhost:8000`.
+2. In this repo:
 
 ```bash
 npm install
@@ -88,81 +102,52 @@ Create `.env.development` (it is gitignored) with:
 
 | Variable | What it is |
 | -------- | ---------- |
-| `MONGODB_URI` | Atlas connection string; the path must end with `/health`. |
-| `AUTH_SECRET` | Long random string used to hash one-time codes. |
-| `BREVO_API_KEY` | Brevo **API** key (`xkeysib-…`), not the SMTP key. |
-| `EMAIL_FROM` | Sender address verified in Brevo (Senders, Domains & Dedicated IPs). |
-| `EMAIL_FROM_NAME` | Display name on the email, e.g. `Tracker-Otp`. |
+| `API_URL` | Base URL of the FastAPI backend, e.g. `http://localhost:8000`. Server-side only. |
 | `NEXT_PUBLIC_FIREBASE_API_KEY`, `_AUTH_DOMAIN`, `_PROJECT_ID`, `_STORAGE_BUCKET`, `_MESSAGING_SENDER_ID`, `_APP_ID` | Firebase web app config (public). |
 | `NEXT_PUBLIC_FIREBASE_VAPID_KEY` | Web push certificate key from Firebase console → Cloud Messaging. |
-| `FIREBASE_SERVICE_ACCOUNT` | Service-account JSON on **one line** (Firebase console → Service accounts → Generate new private key). Secret. |
-| `CRON_SECRET` | Random string; callers of the reminder endpoint must send it. |
 | `NODE_OPTIONS=--use-system-ca` | Only if your network intercepts HTTPS (corporate proxy) and Node rejects its certificate. |
-
-Generate secrets with
-`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
 
 Then:
 
 ```bash
-npm run migrate:auth   # once per database: swaps the old global unique indexes for per-user ones
 npm run dev            # loads .env.development
 ```
 
 Open <http://localhost:3000>, sign up with your email, and add your medications.
-Never commit real credentials.
+Secrets (database, email, Firebase service account, `AUTH_SECRET`, `CRON_SECRET`) belong to the
+backend's `.env`, not here. Never commit real credentials.
 
----
-
-## 🍃 MongoDB Atlas setup
-
-1. Create a free account at <https://www.mongodb.com/atlas> and a free M0 cluster.
-2. **Database Access** → add a database user (username + password).
-3. **Network Access** → allow `0.0.0.0/0` so serverless hosts (no fixed IPs) can connect.
-4. **Connect → Drivers** → copy the connection string and set it as `MONGODB_URI`.
-   Collections and indexes are created automatically.
+> `API_URL` is read when Next.js **starts/builds** (the proxy rewrite is created then), so
+> restart the dev server after changing it.
 
 ---
 
 ## 🔔 Dose reminders
 
-Reminders are sent by a job that finds doses due in the last 5 minutes and
-pushes one notification per user per time slot. Each dose is reminded only once,
-so overlapping runs are safe.
+Reminders are sent by the **backend**: a job finds doses due in the last 5 minutes and pushes one
+notification per user per time slot (each dose only once). The API runs this job itself every
+minute (`REMINDER_TIMER_ENABLED`); on serverless hosting call its
+`/api/v1/cron/send-reminders` endpoint from a scheduler instead. Details are in the
+`tracker-api` README.
 
-- **Self-hosted (`next start`) and development:** a timer inside the server runs
-  the job every minute (`instrumentation-node.ts`). Set
-  `DISABLE_REMINDER_TIMER=1` to turn it off.
-- **Vercel / serverless:** the timer does not run (instances are short-lived).
-  Call the endpoint every minute instead, with the secret:
-
-  ```
-  GET https://<your-domain>/api/cron/send-reminders
-  Authorization: Bearer <CRON_SECRET>
-  ```
-
-  Use Vercel Cron (Pro plan, schedule `* * * * *`; Vercel adds the header for
-  you when `CRON_SECRET` is set) or a free external service such as cron-job.org.
-
-Each user turns reminders on per browser with the bell icon, and clicking the
-bell again sends a test notification. Signing out removes that browser's token.
+In the UI, each user turns reminders on per browser with the bell icon (registers this
+browser's FCM token with the API), and clicking the bell again sends a test notification.
+Signing out removes that browser's token.
 
 ---
 
 ## ▲ Deploy to Vercel
 
-1. Push the repo to GitHub and import it in Vercel.
-2. Set **Build Command** to `next build` (the `build` script expects a
+1. Deploy `tracker-api` somewhere that can run a long-lived Python process (a VM, container or
+   similar) so its reminder timer keeps running.
+2. Push this repo to GitHub and import it in Vercel.
+3. Set **Build Command** to `next build` (the `build` script expects a
    `.env.production` file, which should not be committed).
-3. Add the environment variables from the table above in Project Settings →
-   Environment Variables. Use a **new** `AUTH_SECRET` and `CRON_SECRET` for
-   production, paste `FIREBASE_SERVICE_ACCOUNT` as raw JSON, and skip
-   `NODE_OPTIONS`. `NEXT_PUBLIC_*` values must be set before the first build.
-4. Run `npm run migrate:auth` once against your production database if it is not
-   the one you already migrated.
-5. Set up the per-minute reminder caller (see above).
-6. To let anyone receive sign-in codes, use a sender in Brevo that you control
-   (ideally on a verified domain) as `EMAIL_FROM`.
+4. Add `API_URL` (the public URL of the backend) and the `NEXT_PUBLIC_FIREBASE_*` variables in
+   Project Settings → Environment Variables. `API_URL` and `NEXT_PUBLIC_*` must be set before the
+   first build.
+5. Set `CORS_ORIGINS` on the backend to your UI origin only if the browser ever calls the API
+   directly; the Next.js proxy does not need it.
 
 ---
 
@@ -176,7 +161,6 @@ bell again sends a test notification. Signing out removes that browser's token.
 | `npm run build:dev`    | Build with the development env file.                     |
 | `npm run start`        | Run the production build (`.env.production`).            |
 | `npm run start:dev`    | Run a build with the development env file.               |
-| `npm run migrate:auth` | One-off index migration for per-user data.               |
 | `npm run typecheck`    | Strict TypeScript check (`tsc --noEmit`).                |
 | `npm run lint`         | ESLint.                                                  |
 
@@ -184,25 +168,8 @@ bell again sends a test notification. Signing out removes that browser's token.
 
 ## 🗃️ Data model
 
-```ts
-User         { email, timestamps }
-Otp          { email, purpose, codeHash, attempts, sentAt, expiresAt }   // TTL
-Session      { tokenHash, userId, expiresAt }                            // TTL
-Medication   { userId, name, description, instructions, scheduleTimes[], daysOfWeek[], enabled, timestamps }
-DailyLog     { userId, date, medicationName, scheduledTime, completed, completedAt, notes, count }
-PushToken    { userId, token, userAgent, timestamps }
-ReminderSent { userId, date, medicationName, scheduledTime }             // TTL
-```
-
-- `daysOfWeek` uses `0` = Sunday … `6` = Saturday. A medication is due on a date
-  when that date's weekday is in the list.
-- `DailyLog` tracks completion **per dose** (`userId + date + medicationName +
-  scheduledTime`), so twice-daily medications, the timeline and streaks all work.
-- Every query and action is scoped by `userId`, so accounts never see each
-  other's data. Documents created before accounts existed have no `userId` and
-  are ignored.
-- Wellness (hidden) reuses `dailylogs` with the reserved `__wellness__` name; all
-  medication queries exclude it.
+The database schema and all queries now live in the backend (`tracker-api`: `app/db/`). The JSON
+shapes the UI consumes are in `lib/api/types.ts`.
 
 ---
 
@@ -210,7 +177,6 @@ ReminderSent { userId, date, medicationName, scheduledTime }             // TTL
 
 - The entire app operates on **Asia/Kolkata (IST, UTC+05:30)** regardless of
   where the server runs: schedule times, "today", weekdays and streaks are all IST.
-- Sessions live in MongoDB and are referenced by an httpOnly cookie; the
-  middleware only checks that the cookie exists, and pages check it against the
-  database.
+- Sessions live in MongoDB (managed by the API) and are referenced by an HttpOnly cookie; the
+  middleware only checks that the cookie exists, and the API validates it on every request.
 - shadcn/ui components live in `components/ui` and are yours to customise.

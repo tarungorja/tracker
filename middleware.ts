@@ -1,9 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-// Edge middleware can't query MongoDB, so this only checks that a session cookie
-// exists. The cookie is validated against the database in `requireUser()`, and the
-// auth pages redirect already-signed-in users themselves (so a stale cookie can't
-// cause a redirect loop).
+// Edge middleware can't call the API cheaply, so this only checks that a session cookie
+// exists. The API validates it (via `requireUser()` in lib/api/server.ts), and the auth
+// pages redirect already-signed-in users themselves (so a stale cookie can't cause a
+// redirect loop).
 const SESSION_COOKIE = "session";
 const AUTH_PAGES = ["/signin", "/signup"];
 

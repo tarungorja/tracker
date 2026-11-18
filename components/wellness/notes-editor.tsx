@@ -1,9 +1,10 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Check, Loader2 } from "lucide-react";
 
-import { setDayNotes } from "@/actions/wellness";
+import { setDayNotes } from "@/lib/api/wellness";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -15,6 +16,7 @@ export function NotesEditor({
   date: string;
   initialNotes: string;
 }) {
+  const router = useRouter();
   const [notes, setNotes] = React.useState(initialNotes);
   const [pending, startTransition] = React.useTransition();
   const { toast } = useToast();
@@ -26,6 +28,7 @@ export function NotesEditor({
       const result = await setDayNotes({ notes, date });
       if (result.ok) {
         toast({ title: "Notes saved", variant: "success" });
+        router.refresh();
       } else {
         toast({ title: "Couldn't save", description: result.error, variant: "error" });
       }
