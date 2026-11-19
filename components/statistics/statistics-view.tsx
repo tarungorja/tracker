@@ -19,9 +19,9 @@ export function StatisticsView({ data }: { data: StatisticsData }) {
   return (
     <div className="space-y-4 sm:space-y-5">
       <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
-        <Reveal>
-          <Card>
-            <CardContent className="flex items-center gap-6 p-6">
+        <Reveal className="h-full">
+          <Card className="h-full">
+            <CardContent className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center sm:flex-row sm:gap-8 sm:p-6 sm:text-left">
               <ProgressRing value={data.overallPercent} size={132} stroke={12}>
                 <span className="text-2xl font-bold tabular-nums">{data.overallPercent}%</span>
               </ProgressRing>
@@ -36,9 +36,9 @@ export function StatisticsView({ data }: { data: StatisticsData }) {
           </Card>
         </Reveal>
 
-        <Reveal delay={0.05}>
-          <Card>
-            <CardContent className="flex items-center gap-6 p-6">
+        <Reveal delay={0.05} className="h-full">
+          <Card className="h-full">
+            <CardContent className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center sm:flex-row sm:gap-8 sm:p-6 sm:text-left">
               <ProgressRing
                 value={data.monthPercent}
                 size={132}

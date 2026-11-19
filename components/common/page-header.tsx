@@ -18,7 +18,7 @@ export function PageHeader({
   className,
 }: PageHeaderProps) {
   return (
-    <div className={cn("mb-6 flex items-start justify-between gap-4 animate-fade-in", className)}>
+    <div className={cn("mb-6 flex flex-wrap items-start justify-between gap-x-4 gap-y-3 animate-fade-in", className)}>
       <div className="flex items-center gap-3">
         {Icon ? (
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-health-violet text-white shadow-lg shadow-primary/25">

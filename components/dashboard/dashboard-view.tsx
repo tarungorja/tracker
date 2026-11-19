@@ -19,9 +19,17 @@ import { Reveal } from "@/components/common/reveal";
 import { StatCard } from "@/components/common/stat-card";
 import { Heatmap, type HeatmapDay } from "@/components/charts/heatmap";
 import { ProgressRing } from "@/components/charts/progress-ring";
+import { FamilyShortcutCard, type FollowedMember } from "@/components/dashboard/family-card";
 import { DoseItem } from "@/components/doses/dose-item";
 
-export function DashboardView({ data }: { data: DashboardData }) {
+export function DashboardView({
+  data,
+  following = [],
+}: {
+  data: DashboardData;
+  /** Accounts the user follows (family sharing), with their doses for today. */
+  following?: FollowedMember[];
+}) {
   const heatmapDays: HeatmapDay[] = data.heatmap.map((d) => ({
     date: d.date,
     value: d.ratio,
@@ -35,7 +43,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
       <div className="grid gap-4 sm:gap-5 lg:grid-cols-3">
         <Reveal className="lg:col-span-2">
           <Card className="h-full">
-            <CardContent className="flex h-full flex-col items-center justify-center gap-6 p-6 sm:flex-row sm:gap-8">
+            <CardContent className="flex h-full flex-col items-center justify-center gap-6 p-6 sm:flex-row sm:gap-8 sm:p-6">
               <ProgressRing value={data.progress} size={168}>
                 <span className="text-4xl font-bold tabular-nums">{data.progress}%</span>
                 <span className="text-xs font-medium text-muted-foreground">today</span>
@@ -158,6 +166,10 @@ export function DashboardView({ data }: { data: DashboardData }) {
           </Card>
         </Reveal>
       </div>
+
+      <Reveal delay={0.18}>
+        <FamilyShortcutCard members={following} />
+      </Reveal>
 
       <Reveal delay={0.2}>
         <Card>

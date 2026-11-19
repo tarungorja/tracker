@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Sparkles } from "lucide-react";
 
-import { APP_NAME } from "@/lib/constants";
+import { APP_NAME, CONTACT_EMAIL, SUPPORT_PHONE, SUPPORT_PHONE_DISPLAY } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/api/server";
 import { AmbientBackground } from "@/components/layout/ambient-background";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
@@ -11,7 +11,7 @@ import { ThemeToggle } from "@/components/layout/theme-toggle";
 export const dynamic = "force-dynamic";
 
 export default async function AuthLayout({ children }: { children: ReactNode }) {
-  if (await getCurrentUser()) redirect("/");
+  if (await getCurrentUser()) redirect("/dashboard");
 
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 py-10">
@@ -32,6 +32,17 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
           <Link href="/privacy" className="underline hover:text-foreground">
             privacy policy
           </Link>
+          .
+        </p>
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          Need help?{" "}
+          <a href={`mailto:${CONTACT_EMAIL}`} className="underline hover:text-foreground">
+            {CONTACT_EMAIL}
+          </a>{" "}
+          or{" "}
+          <a href={`tel:${SUPPORT_PHONE}`} className="underline hover:text-foreground">
+            {SUPPORT_PHONE_DISPLAY}
+          </a>
           .
         </p>
       </div>

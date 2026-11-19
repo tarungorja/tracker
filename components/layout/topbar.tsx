@@ -18,7 +18,7 @@ export function Topbar({ userEmail }: { userEmail: string }) {
       <div className="glass flex items-center justify-between gap-3 rounded-2xl px-4 py-2.5">
         <div className="flex items-center gap-2 lg:hidden">
           <MobileSidebar />
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/dashboard" className="flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-health-violet text-white">
               <Sparkles className="h-4 w-4" />
             </span>

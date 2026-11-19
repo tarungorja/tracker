@@ -1,8 +1,8 @@
 {
-    "name": "hair-health-tracker",
+    "name": "medication-tracker",
     "version": "1.0.0",
     "private": true,
-    "description": "Hair Health Tracker — track hair-care medications, log daily completion, and monitor daily wellness. Built with Next.js 15.",
+    "description": "Medication Tracker — track medications, log daily completion, monitor daily wellness, and follow a family member. Built with Next.js 15.",
     "scripts": {
         "dev": "dotenv -e .env.development -- next dev",
         "dev:prod": "dotenv -e .env.production -- next dev",

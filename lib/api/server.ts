@@ -4,12 +4,14 @@
 // calls use lib/api/client.ts instead. Importing next/headers here keeps this out of client code.
 import { cache } from "react";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import type {
   AuthUser,
   DashboardData,
+  LinkedUser,
   MedicationsPageData,
+  PatientOverview,
   StatisticsData,
   TodayData,
   WellnessData,
@@ -76,3 +78,16 @@ export const getTodayData = () => getJson<TodayData>("/today");
 export const getMedicationsPageData = () => getJson<MedicationsPageData>("/medications");
 export const getStatisticsData = () => getJson<StatisticsData>("/statistics");
 export const getWellnessData = () => getJson<WellnessData>("/wellness");
+
+export const getPatients = () => getJson<LinkedUser[]>("/family/patients");
+export const getCaregivers = () => getJson<LinkedUser[]>("/family/caregivers");
+
+/** A followed account's read-only overview. 404s (not linked / unknown id) show the not-found page. */
+export async function getPatientOverview(patientId: string): Promise<PatientOverview> {
+  if (!/^[0-9a-fA-F]{24}$/.test(patientId)) notFound();
+  const response = await fetchApi(`/family/patients/${patientId}/overview`);
+  if (response.status === 401) redirect("/signin");
+  if (response.status === 404) notFound();
+  if (!response.ok) throw new Error(await errorMessage(response));
+  return (await response.json()) as PatientOverview;
+}

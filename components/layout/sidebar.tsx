@@ -14,7 +14,7 @@ export function Sidebar() {
 
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-2 border-r border-border/60 px-4 py-6 lg:flex">
-      <Link href="/" className="mb-6 flex items-center gap-3 px-2">
+      <Link href="/dashboard" className="mb-6 flex items-center gap-3 px-2">
         <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-health-violet text-white shadow-lg shadow-primary/30">
           <Sparkles className="h-5 w-5" />
         </span>

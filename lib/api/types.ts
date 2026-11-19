@@ -157,3 +157,37 @@ export interface WellnessData {
   currentCleanStreak: number;
   totalTracked: number;
 }
+
+// ---- family sharing -----------------------------------------------------------------------
+
+export interface InviteView {
+  /** Shown once, e.g. "K7QM-2XPD". */
+  code: string;
+  expiresAt: string;
+}
+
+export interface LinkedUser {
+  id: string;
+  email: string;
+  linkedAt: string;
+}
+
+export type MedicationActivityAction = "added" | "updated" | "removed" | "enabled" | "disabled";
+
+export interface MedicationActivityView {
+  action: MedicationActivityAction;
+  medicationName: string;
+  at: string;
+}
+
+export interface PatientOverview {
+  patient: LinkedUser;
+  dashboard: DashboardData;
+  /** Today's doses whose time has passed and that aren't marked as taken. */
+  missed: DoseView[];
+  activity: MedicationActivityView[];
+  lastMedicationUpdateAt: string | null;
+  lastDoseLoggedAt: string | null;
+  lastRemindedAt: string | null;
+  remindAvailableInSeconds: number;
+}

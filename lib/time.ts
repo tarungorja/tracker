@@ -108,3 +108,29 @@ export function labelToTimeInput(label: string): string {
   const m = (minutes % 60).toString().padStart(2, "0");
   return `${h}:${m}`;
 }
+
+const WHEN_FORMATTER = new Intl.DateTimeFormat("en-IN", {
+  timeZone: IST_TIMEZONE,
+  day: "numeric",
+  month: "short",
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+});
+const TIME_FORMATTER = new Intl.DateTimeFormat("en-IN", {
+  timeZone: IST_TIMEZONE,
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+});
+const DAY_FORMATTER = new Intl.DateTimeFormat("en-CA", { timeZone: IST_TIMEZONE });
+
+/** "Today, 9:05 am" for today (IST), otherwise "7 Jan, 9:05 am". For timestamps from the API. */
+export function formatWhen(iso: string, now: Date = new Date()): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  if (DAY_FORMATTER.format(date) === DAY_FORMATTER.format(now)) {
+    return `Today, ${TIME_FORMATTER.format(date)}`;
+  }
+  return WHEN_FORMATTER.format(date);
+}

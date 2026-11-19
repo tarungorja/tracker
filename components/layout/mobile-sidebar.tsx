@@ -57,7 +57,7 @@ export function MobileSidebar() {
             transition={{ type: "spring", stiffness: 400, damping: 40 }}
           >
             <div className="mb-6 flex items-center justify-between px-1">
-              <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-3">
+              <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-health-violet text-white shadow-lg shadow-primary/30">
                   <Sparkles className="h-5 w-5" />
                 </span>

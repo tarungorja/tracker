@@ -20,7 +20,7 @@ export default function Error({
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <Card className="max-w-md text-center">
-        <CardContent className="flex flex-col items-center gap-4 p-8">
+        <CardContent className="flex flex-col items-center gap-4 p-8 sm:p-8">
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/12 text-destructive">
             <AlertOctagon className="h-7 w-7" />
           </span>

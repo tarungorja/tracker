@@ -6,16 +6,24 @@ import { NextResponse, type NextRequest } from "next/server";
 // redirect loop).
 const SESSION_COOKIE = "session";
 const AUTH_PAGES = ["/signin", "/signup"];
-// Readable without an account (linked from the sign-in and sign-up forms).
-const PUBLIC_PAGES = ["/privacy"];
+// Readable without an account: linked from the sign-in and sign-up forms, and the URLs given to
+// Google Play (privacy policy, how to delete an account).
+const PUBLIC_PAGES = ["/privacy", "/delete-account"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const isAuthPage = AUTH_PAGES.includes(pathname);
+  const hasSession = request.cookies.has(SESSION_COOKIE);
 
+  // "/" is not a page: it only decides where to go. A session goes to the dashboard, no session
+  // goes to sign-in.
+  if (pathname === "/") {
+    return NextResponse.redirect(new URL(hasSession ? "/dashboard" : "/signin", request.url));
+  }
+
+  const isAuthPage = AUTH_PAGES.includes(pathname);
   const isPublicPage = isAuthPage || PUBLIC_PAGES.includes(pathname);
 
-  if (!isPublicPage && !request.cookies.has(SESSION_COOKIE)) {
+  if (!isPublicPage && !hasSession) {
     return NextResponse.redirect(new URL("/signin", request.url));
   }
   return NextResponse.next();

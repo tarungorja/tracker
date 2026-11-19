@@ -1,4 +1,4 @@
-# 💊 Hair Health Tracker
+# 💊 Medication Tracker
 
 A **Next.js 15** app for tracking your own medications (Indian Standard Time),
 logging daily completion, and getting a push notification when a dose is due.
@@ -28,6 +28,11 @@ calls over HTTP. See [Architecture](#-architecture).
 - **Dose reminders** — web push notifications (Firebase Cloud Messaging) at each
   scheduled time. Right after signing in, if the browser hasn't decided yet, it shows its own
   "Allow / Block" notification popup; the bell in the top bar turns reminders on or off later.
+- **Family** — a father creates a one-time invite code (Family page); his son enters it to follow
+  his account read-only: today's doses (taken / missed), streak, heatmap and a log of medication
+  changes. When a dose has been missed the son gets a **Remind** button that pushes a
+  "you missed a dose" notification to his father's devices (only for missed doses, 5-minute
+  cooldown). Either side can end the connection at any time.
 - **UI** — glass cards, dark mode, responsive layout, Framer Motion, loading
   skeletons and error boundaries.
 
@@ -72,8 +77,10 @@ Browser ──► Next.js UI (this repo) ──/api/v1/*──► FastAPI (track
 ```
 app/
   (auth)/                signin/ and signup/ pages (no app shell)
-  (app)/                 signed-in pages: dashboard, today, medications,
-                         statistics (+ hidden wellness) inside the app shell
+  (app)/                 signed-in pages: dashboard (/dashboard), today, medications,
+                         statistics, account (+ hidden wellness) inside the app shell
+  privacy/, delete-account/  public pages (no sign-in needed): the privacy policy and how to
+                         delete an account. Give these two URLs to Google Play.
   firebase-messaging-sw.js/  service worker that shows push notifications
 components/              ui/, layout/, auth/, medications/, today/, dashboard/, …
 lib/
@@ -84,7 +91,9 @@ lib/
     auth.ts, medications.ts, doses.ts, wellness.ts, push.ts   typed endpoint calls
   firebase/client.ts     browser push-token registration
   time.ts                IST display helpers
-middleware.ts            Redirects signed-out visitors to /signin
+middleware.ts            "/" is not a page: it redirects to /dashboard when a session cookie
+                         exists, otherwise to /signin. Signed-out visitors to any other page go
+                         to /signin (except /signin, /signup, /privacy, /delete-account).
 ```
 
 ---
@@ -105,7 +114,8 @@ Create `.env.development` (it is gitignored) with:
 | -------- | ---------- |
 | `API_URL` | Base URL of the FastAPI backend, e.g. `http://localhost:8000`. Server-side only. |
 | `NEXT_PUBLIC_FIREBASE_API_KEY`, `_AUTH_DOMAIN`, `_PROJECT_ID`, `_STORAGE_BUCKET`, `_MESSAGING_SENDER_ID`, `_APP_ID` | Firebase web app config (public). |
-| `NEXT_PUBLIC_CONTACT_EMAIL` | Address shown on the privacy page for data requests. Set before launch. |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Support / privacy contact email (Account → Help & support, the privacy and delete-account pages, the sign-in pages). Defaults to `tarungorja1647@gmail.com`; set only to override. |
+| `NEXT_PUBLIC_SUPPORT_PHONE` | Support phone number in international form. Defaults to `+919347294521`; set only to override. |
 | `NEXT_PUBLIC_FIREBASE_VAPID_KEY` | Web push certificate key from Firebase console → Cloud Messaging. |
 | `NODE_OPTIONS=--use-system-ca` | Only if your network intercepts HTTPS (corporate proxy) and Node rejects its certificate. |
 

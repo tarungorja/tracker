@@ -8,7 +8,7 @@ export default function NotFound() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <Card className="max-w-md text-center">
-        <CardContent className="flex flex-col items-center gap-4 p-8">
+        <CardContent className="flex flex-col items-center gap-4 p-8 sm:p-8">
           <span className="text-5xl font-bold text-primary">404</span>
           <div>
             <h2 className="text-lg font-bold">Page not found</h2>

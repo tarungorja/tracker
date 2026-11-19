@@ -42,7 +42,7 @@ export function Counter({
 
   return (
     <Card className="h-full">
-      <CardContent className="flex h-full flex-col items-center justify-center gap-6 p-8">
+      <CardContent className="flex h-full flex-col items-center justify-center gap-6 p-8 sm:p-8">
         <div className="text-center">
           <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
             Today

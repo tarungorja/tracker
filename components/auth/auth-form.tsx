@@ -83,7 +83,7 @@ export function AuthForm({ purpose }: { purpose: OtpPurpose }) {
         setError(result.error ?? "Could not verify the code.");
         return;
       }
-      router.replace("/");
+      router.replace("/dashboard");
       router.refresh();
     });
   }
