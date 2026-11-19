@@ -1,8 +1,12 @@
 // Browser-side HTTP client for the FastAPI backend.
 //
 // Requests go to same-origin `/api/v1/...`, which next.config.ts proxies to the API. That keeps
-// the HttpOnly session cookie first-party and avoids CORS. Every call resolves (never throws)
+// the HttpOnly session cookies first-party and avoids CORS. Every call resolves (never throws)
 // to `{ ok: true, ...data }` or `{ ok: false, error }`, the shape the components already use.
+//
+// The access token is short-lived. When the API answers 401, the client trades the refresh
+// cookie for a new pair (POST /auth/refresh) and retries the request once; only if that also
+// fails is the visitor sent back to sign in.
 
 const BASE_PATH = "/api/v1";
 
@@ -12,20 +16,46 @@ export type ApiResult<T extends object = object> =
 
 type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
+let refreshing: Promise<void> | null = null;
+
+/** One refresh at a time: parallel 401s share it instead of each rotating the token. */
+function refreshSession(): Promise<void> {
+  refreshing ??= fetch(`${BASE_PATH}/auth/refresh`, {
+    method: "POST",
+    credentials: "same-origin",
+    cache: "no-store",
+  })
+    .then(() => undefined)
+    .catch(() => undefined)
+    .finally(() => {
+      refreshing = null;
+    });
+  return refreshing;
+}
+
 export async function apiRequest<T extends object = object>(
   method: Method,
   path: string,
   body?: unknown,
 ): Promise<ApiResult<T>> {
-  let response: Response;
-  try {
-    response = await fetch(`${BASE_PATH}${path}`, {
+  const send = () =>
+    fetch(`${BASE_PATH}${path}`, {
       method,
       headers: body === undefined ? undefined : { "Content-Type": "application/json" },
       body: body === undefined ? undefined : JSON.stringify(body),
       credentials: "same-origin",
       cache: "no-store",
     });
+
+  let response: Response;
+  try {
+    response = await send();
+    if (response.status === 401 && !path.startsWith("/auth/")) {
+      // Expired access token? Renew it and retry once. If another tab refreshed first this
+      // refresh is refused, but that tab already replaced the cookies, so the retry still works.
+      await refreshSession();
+      response = await send();
+    }
   } catch {
     return { ok: false, error: "Could not reach the server. Check your connection and try again." };
   }

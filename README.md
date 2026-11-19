@@ -54,7 +54,13 @@ Browser ──► Next.js UI (this repo) ──/api/v1/*──► FastAPI (track
 - The API sets an **HttpOnly `session` cookie**. Because browser calls go through the Next.js
   proxy (a rewrite in `next.config.ts`), the cookie stays first-party: no CORS setup needed.
 - Server Components fetch data with `lib/api/server.ts`, forwarding the visitor's cookie.
-  A `401` redirects to `/signin`.
+  A `401` first tries to renew the session (see below), then redirects to `/signin`.
+- **Refresh tokens.** Sign-in asks for a short-lived access token (15 min, the `session`
+  cookie) plus a rotating refresh token (30 days, the `refresh_token` cookie, only sent to
+  `/api/v1/auth`). Browser calls (`lib/api/client.ts`) answer a `401` by calling
+  `POST /auth/refresh` and retrying once. Server Components can't set cookies, so on a `401`
+  they redirect to `app/api/v1/auth/web-refresh`, which refreshes and sends the visitor back
+  to the same page. Sessions created before refresh tokens existed keep working as they were.
 - Client components call `lib/api/*.ts`, which resolves to `{ ok: true, ... }` or
   `{ ok: false, error }`. After a write, components call `router.refresh()` to re-render the
   page with fresh server data.

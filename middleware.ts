@@ -26,7 +26,10 @@ export function middleware(request: NextRequest) {
   if (!isPublicPage && !hasSession) {
     return NextResponse.redirect(new URL("/signin", request.url));
   }
-  return NextResponse.next();
+  // Server code reads this to come back to the same page after refreshing an expired session.
+  const headers = new Headers(request.headers);
+  headers.set("x-pathname", pathname + request.nextUrl.search);
+  return NextResponse.next({ request: { headers } });
 }
 
 export const config = {

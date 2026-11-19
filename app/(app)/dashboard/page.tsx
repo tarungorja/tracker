@@ -9,6 +9,12 @@ export const dynamic = "force-dynamic";
 
 const MAX_FOLLOWED_ON_DASHBOARD = 4;
 
+/** Next.js implements redirect() by throwing; those must reach Next, not be swallowed below. */
+function isRedirect(error: unknown): boolean {
+  const digest = (error as { digest?: unknown } | null)?.digest;
+  return typeof digest === "string" && digest.startsWith("NEXT_REDIRECT");
+}
+
 /** The family card is optional: a failure here must never break the dashboard. */
 async function followedMembers(): Promise<FollowedMember[]> {
   try {
@@ -17,12 +23,14 @@ async function followedMembers(): Promise<FollowedMember[]> {
       people.map(async (user) => {
         try {
           return { user, overview: await getPatientOverview(user.id) };
-        } catch {
+        } catch (error) {
+          if (isRedirect(error)) throw error;
           return { user, overview: null };
         }
       }),
     );
-  } catch {
+  } catch (error) {
+    if (isRedirect(error)) throw error;
     return [];
   }
 }
